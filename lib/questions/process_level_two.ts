@@ -1,19 +1,5 @@
 import { levelTwoQuestions } from "@/data/level_two_questions";
-
-// Add interface for the level two question data structure
-interface LevelTwoQuestion {
-  Lvl: number;
-  " Role Name": string;
-  " Description": string;
-  " Building a Team": string;
-  " Developing Others": string;
-  " Leading a Team to Get Results": string;
-  " Managing Performance": string;
-  " Managing the Business (Business Acumen)": string;
-  " Personal Development": string;
-  "Communicating as a Leader": string;
-  [key: string]: string | number; // Add index signature for other possible capabilities
-}
+import type { LevelTwoQuestion } from "@/types/level-two";
 
 export async function readLevelTwoQuestions() {
   const questions = levelTwoQuestions;
@@ -45,7 +31,7 @@ export async function getLevelTwoQuestions(
       return [];
     }
 
-    const capabilityKey = ` ${capability}`;
+    const capabilityKey = ` ${capability}`; // Note the space before capability to match the data structure
     const capabilityContent = levelData[capabilityKey];
 
     if (!capabilityContent) {
@@ -79,8 +65,8 @@ function parseAllAreasForLevelTwo(content: string) {
 
   const lines = content.split("\n");
   const themes = [];
-
   let currentTheme = "";
+  let isCollectingTheme = false;
 
   for (let line of lines) {
     line = line.trim();
@@ -88,32 +74,44 @@ function parseAllAreasForLevelTwo(content: string) {
     // Skip empty lines
     if (!line) continue;
 
-    // If line starts with "Themes or Focus Areas:", skip it
-    if (line.startsWith("Themes or Focus Areas:")) continue;
+    // If line starts with "Themes or Focus Areas", start collecting the theme
+    if (line.toLowerCase().includes("themes or focus areas")) {
+      isCollectingTheme = true;
+      currentTheme = "";
+      continue;
+    }
 
-    // If line ends with colon, it's a new theme header
-    if (line.endsWith(":")) {
-      if (currentTheme) {
-        themes.push(currentTheme.trim());
-      }
-      currentTheme = line;
-    } else {
-      // If we have a current theme, append this line to it
-      if (currentTheme) {
+    // If we're collecting a theme, add the line to current theme
+    if (isCollectingTheme) {
+      // Check for bullet points or numbered items
+      if (line.match(/^[a-z]\.|^[0-9]\.|-|•/)) {
+        if (currentTheme) {
+          themes.push(currentTheme.trim());
+        }
+        currentTheme = line.replace(/^[a-z]\.|^[0-9]\.|-|•/, "").trim();
+      } else if (currentTheme) {
         currentTheme += " " + line;
       } else {
-        // If no current theme but line contains colon, treat as complete theme
-        if (line.includes(":")) {
-          themes.push(line.trim());
+        currentTheme = line;
+      }
+
+      // If we hit a significant break, save the theme
+      if (line.endsWith(".") || line.endsWith("?")) {
+        if (currentTheme) {
+          themes.push(currentTheme.trim());
+          currentTheme = "";
         }
       }
     }
   }
 
-  // Don't forget to add the last theme
+  // Add the last theme if there is one
   if (currentTheme) {
     themes.push(currentTheme.trim());
   }
 
-  return themes.filter((theme) => theme && theme.includes(":"));
+  // Filter out any empty themes and clean up
+  return themes
+    .filter((theme) => theme && theme.length > 0)
+    .map((theme) => theme.replace(/[\u0092]/g, "'").trim()); // Clean up special quotes
 }

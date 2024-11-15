@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
 
 interface LeadershipData {
   data: {
@@ -33,6 +34,13 @@ interface LeadershipFormProps {
 export default function LeadershipForm({
   leadershipData,
 }: LeadershipFormProps) {
+  const router = useRouter();
+
+  const handleStartAssessment = () => {
+    localStorage.setItem("leadershipData", JSON.stringify(leadershipData));
+    router.push("/assessment");
+  };
+
   if (!leadershipData || !leadershipData.data) {
     return null;
   }
@@ -136,7 +144,7 @@ export default function LeadershipForm({
 
           <div className="mt-12 flex justify-center">
             <Button
-              type="button"
+              onClick={handleStartAssessment}
               className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-8 py-4 text-lg font-semibold rounded-full hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-indigo-500/25"
             >
               Start Assessment

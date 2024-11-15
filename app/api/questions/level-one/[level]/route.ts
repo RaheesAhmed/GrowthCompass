@@ -8,6 +8,14 @@ export async function GET(
   const data = await params;
   const level = data.level;
 
-  const levelOneQuestions = await getLevelOneQuestionsByLevel({ level });
-  return NextResponse.json({ levelOneQuestions });
+  try {
+    const questions = await getLevelOneQuestionsByLevel({ level });
+    return NextResponse.json({ levelOneQuestions: questions });
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch questions" },
+      { status: 500 }
+    );
+  }
 }
