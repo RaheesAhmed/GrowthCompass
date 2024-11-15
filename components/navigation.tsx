@@ -1,6 +1,7 @@
 "use client";
 
-import { Compass, ChevronDown, Menu, Link } from "lucide-react";
+import { Compass, ChevronDown, Menu } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 export default function Navigation() {

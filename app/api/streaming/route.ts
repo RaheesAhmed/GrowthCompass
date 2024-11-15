@@ -27,7 +27,9 @@ export async function POST(request: Request) {
       role: "user",
       content: `Generate a plan for the user based on the following data: ${JSON.stringify(
         userData
-      )} ${JSON.stringify(leadershipData)} ${JSON.stringify(responses)}`,
+      )} ${JSON.stringify(leadershipData)} ${JSON.stringify(
+        responses
+      )}.Please format your response using advanced Markdown with clear headers, tables, and appropriate formatting for maximum readability.`,
     });
 
     // Run the assistant
