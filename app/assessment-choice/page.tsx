@@ -8,6 +8,7 @@ export default function AssessmentChoicePage() {
 
   const handleSkip = async () => {
     const leadershipData = localStorage.getItem("leadershipData");
+    const userData = localStorage.getItem("userData");
 
     try {
       const response = await fetch("/api/generate", {
@@ -18,6 +19,7 @@ export default function AssessmentChoicePage() {
         body: JSON.stringify({
           leadershipData: JSON.parse(leadershipData || "{}"),
           responses: [], // Empty responses for skip path
+          userData: userData ? JSON.parse(userData) : null,
         }),
       });
 

@@ -107,7 +107,7 @@ export default function LevelTwoQuestions({
       const data = await response.json();
       const questions = data.levelTwoQuestions;
 
-      const processedQuestions = questions.map((q) => ({
+      const processedQuestions = questions.map((q: any) => ({
         ...q,
         capability: capability,
       }));
