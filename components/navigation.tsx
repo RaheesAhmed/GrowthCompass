@@ -1,6 +1,6 @@
 "use client";
 
-import { Compass, ChevronDown, Menu } from "lucide-react";
+import { Compass, ChevronDown, Menu, Link } from "lucide-react";
 import { useState } from "react";
 
 export default function Navigation() {
@@ -28,21 +28,23 @@ export default function Navigation() {
           <div className="flex justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur-lg opacity-50" />
-                  <Compass
-                    className="h-8 w-8 text-white relative"
-                    strokeWidth={1.5}
-                  />
-                </div>
-                <span className="ml-3 text-xl font-medium tracking-tight text-white">
-                  <span className="bg-gradient-to-r from-indigo-400 to-purple-400 text-transparent bg-clip-text font-bold">
-                    Growth
+              <Link href="/">
+                <div className="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur-lg opacity-50" />
+                    <Compass
+                      className="h-8 w-8 text-white relative"
+                      strokeWidth={1.5}
+                    />
+                  </div>
+                  <span className="ml-3 text-xl font-medium tracking-tight text-white">
+                    <span className="bg-gradient-to-r from-indigo-400 to-purple-400 text-transparent bg-clip-text font-bold">
+                      Growth
+                    </span>
+                    <span className="text-slate-100">Compass</span>
                   </span>
-                  <span className="text-slate-100">Compass</span>
-                </span>
-              </div>
+                </div>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
@@ -86,9 +88,11 @@ export default function Navigation() {
                 <button className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
                   Sign In
                 </button>
-                <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25">
-                  Get Started
-                </button>
+                <Link href="/start">
+                  <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25">
+                    Get Started
+                  </button>
+                </Link>
               </div>
             </div>
 

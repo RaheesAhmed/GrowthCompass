@@ -1,6 +1,9 @@
 import OpenAI from "openai";
 import { StreamingTextResponse } from "ai";
 
+export const runtime = "edge";
+export const maxDuration = 300;
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
