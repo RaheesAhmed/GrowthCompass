@@ -658,45 +658,79 @@ export default function LevelOneQuestions({
                   !isLevelTwoVisible
                 }
                 variant="outline"
-                className="flex items-center text-lg px-6 py-3 bg-slate-800/50 border-slate-700 text-slate-200 hover:bg-slate-700/50"
+                className="flex items-center text-lg px-6 py-3 bg-slate-800/50 border-slate-700 text-slate-200 hover:bg-slate-700/50 transition-all duration-300"
               >
                 <ChevronLeft className="w-5 h-5 mr-2" />
                 Previous
               </Button>
 
-              <Button
-                onClick={handleSave}
-                variant="outline"
-                className="flex items-center text-lg px-6 py-3 bg-slate-800/50 border-slate-700 text-slate-200 hover:bg-slate-700/50"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Save className="w-5 h-5 mr-2" />
-                Save Progress
-              </Button>
+                <Button
+                  onClick={handleSave}
+                  variant="outline"
+                  className="relative group flex items-center text-lg px-8 py-3 bg-slate-800/50 border-slate-700 text-slate-200 overflow-hidden"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.75, ease: "easeInOut" }}
+                  />
+                  <Save className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="relative">Save Progress</span>
+                </Button>
+              </motion.div>
 
-              <Button
-                onClick={handleNext}
-                disabled={isSubmitting}
-                className="flex items-center text-lg px-8 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:opacity-90 transition-all"
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    {(isLevelTwoVisible &&
-                      currentQuestion === levelTwoQuestions.length - 1) ||
-                    (!isLevelTwoVisible &&
-                      currentArea === assessmentData.length - 1 &&
-                      currentQuestion ===
-                        assessmentData[currentArea].questions.length - 1)
-                      ? "Complete"
-                      : "Next"}
-                    <ChevronRight className="w-5 h-5 ml-2" />
-                  </>
-                )}
-              </Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={isSubmitting}
+                  className="relative group flex items-center text-lg px-8 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white overflow-hidden"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-white/20"
+                    initial={{ x: "-100%" }}
+                    whileHover={{ x: "100%" }}
+                    transition={{ duration: 0.5 }}
+                  />
+                  {isSubmitting ? (
+                    <>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="mr-3"
+                      >
+                        <Loader2 className="h-5 w-5" />
+                      </motion.div>
+                      <span className="relative">Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="relative">
+                        {(isLevelTwoVisible &&
+                          currentQuestion === levelTwoQuestions.length - 1) ||
+                        (!isLevelTwoVisible &&
+                          currentArea === assessmentData.length - 1 &&
+                          currentQuestion ===
+                            assessmentData[currentArea].questions.length - 1)
+                          ? "Complete"
+                          : "Next"}
+                      </span>
+                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                    </>
+                  )}
+                </Button>
+              </motion.div>
             </div>
           </CardContent>
         </Card>

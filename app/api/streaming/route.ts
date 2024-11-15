@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { StreamingTextResponse } from "ai";
+import { DEVELOPMENT_PLAN_TEMPLATE } from "@/prompts/development_plan_template";
 
 export const runtime = "edge";
 export const maxDuration = 300;
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
         userData
       )} ${JSON.stringify(leadershipData)} ${JSON.stringify(
         responses
-      )}.Please format your response using advanced Markdown with clear headers, tables, and appropriate formatting for maximum readability.`,
+      )}.using the following template: ${DEVELOPMENT_PLAN_TEMPLATE}. Please format your response using advanced Markdown with clear headers, tables, and appropriate formatting for maximum readability.`,
     });
 
     // Run the assistant
