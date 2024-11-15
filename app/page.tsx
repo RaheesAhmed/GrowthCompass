@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -55,14 +56,16 @@ export default function HomePage() {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
-                <button className="group inline-flex items-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25">
-                  Start Free Assessment
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </button>
-                <button className="group inline-flex items-center px-8 py-4 text-base font-medium text-white bg-slate-800 rounded-xl hover:bg-slate-700 transition-all">
+                <Link href="/start">
+                  <button className="group inline-flex items-center px-8 py-4 text-base font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25">
+                    Start Free Assessment
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </Link>
+                {/* <button className="group inline-flex items-center px-8 py-4 text-base font-medium text-white bg-slate-800 rounded-xl hover:bg-slate-700 transition-all">
                   <Play className="mr-2 h-5 w-5" />
                   Watch Demo
-                </button>
+                </button> */}
               </div>
             </div>
           </div>

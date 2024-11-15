@@ -4,9 +4,12 @@ import { useState, useEffect } from "react";
 import LevelOneQuestions from "@/components/LevelOneQuestions";
 import { useRouter } from "next/navigation";
 import type { LeadershipData } from "@/types/leadership";
+import type { AssessmentResponse } from "@/types/assessment";
 
 export default function AssessmentPage() {
-  const [leadershipData, setLeadershipData] = useState(null);
+  const [leadershipData, setLeadershipData] = useState<LeadershipData | null>(
+    null
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -16,9 +19,11 @@ export default function AssessmentPage() {
       return;
     }
     setLeadershipData(JSON.parse(data));
-  }, []);
+  }, [router]);
 
-  const handleAssessmentComplete = async (allResponses) => {
+  const handleAssessmentComplete = async (
+    allResponses: AssessmentResponse[]
+  ) => {
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -34,7 +39,7 @@ export default function AssessmentPage() {
       if (response.ok) {
         const result = await response.json();
         console.log("result", result);
-        router.push("/dashboard"); // Create this page to show final results
+        router.push("/dashboard");
       }
     } catch (error) {
       console.error("Error submitting assessment:", error);
@@ -47,6 +52,7 @@ export default function AssessmentPage() {
     <LevelOneQuestions
       level={leadershipData.data.responsibilityLevel}
       userInfo={leadershipData.data}
+      responsibilityLevel={leadershipData.data.responsibilityLevel}
       onComplete={handleAssessmentComplete}
     />
   );

@@ -38,7 +38,7 @@ export default function LeadershipForm({
 
   const handleStartAssessment = () => {
     localStorage.setItem("leadershipData", JSON.stringify(leadershipData));
-    router.push("/assessment");
+    router.push("/assessment-choice");
   };
 
   if (!leadershipData || !leadershipData.data) {
@@ -71,42 +71,42 @@ export default function LeadershipForm({
               </span>
             </h1>
 
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="flex items-center space-x-2 bg-green-500/20 px-4 py-2 rounded-full">
-                <CheckCircle className="h-6 w-6 text-green-400" />
-                <p className="text-lg font-semibold text-green-400">
-                  Demographic Completed
+            <div className="grid md:grid-cols-2 gap-6 mt-8">
+              <div className="relative overflow-hidden bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-2xl p-6 border border-indigo-500/20 transform hover:scale-105 transition-transform duration-300">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <Users className="h-8 w-8 text-indigo-400 mb-2" />
+                <Label className="text-sm font-medium text-indigo-300">
+                  Role
+                </Label>
+                <p className="text-2xl font-bold text-white mt-1 tracking-tight">
+                  {leadershipData.data.role}
                 </p>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-purple-500/10 rounded-full -ml-12 -mb-12 blur-2xl"></div>
               </div>
-              <div className="flex flex-wrap justify-center gap-6">
-                <div className="flex items-center space-x-3 bg-indigo-500/20 px-4 py-2 rounded-full">
-                  <Users className="h-5 w-5 text-indigo-400" />
-                  <div className="text-left">
-                    <Label className="text-xs font-medium text-indigo-300">
-                      Role
-                    </Label>
-                    <p className="text-sm font-semibold text-white">
-                      {leadershipData.data.role}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 bg-purple-500/20 px-4 py-2 rounded-full">
-                  <BarChart className="h-5 w-5 text-purple-400" />
-                  <div className="text-left">
-                    <Label className="text-xs font-medium text-purple-300">
-                      Responsibility Level
-                    </Label>
-                    <p className="text-sm font-semibold text-white">
-                      {leadershipData.data.responsibilityLevel}
-                    </p>
-                  </div>
-                </div>
+
+              <div className="relative overflow-hidden bg-gradient-to-br from-purple-500/30 to-pink-500/30 rounded-2xl p-6 border border-purple-500/20 transform hover:scale-105 transition-transform duration-300">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <BarChart className="h-8 w-8 text-purple-400 mb-2" />
+                <Label className="text-sm font-medium text-purple-300">
+                  Level
+                </Label>
+                <p className="text-7xl font-bold text-white mt-1 tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">
+                  {leadershipData.data.responsibilityLevel}
+                </p>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500/10 rounded-full -ml-12 -mb-12 blur-2xl"></div>
               </div>
+            </div>
+
+            <div className="flex items-center justify-center space-x-2 bg-green-500/20 px-4 py-2 rounded-full mt-6 w-fit mx-auto">
+              <CheckCircle className="h-6 w-6 text-green-400" />
+              <p className="text-lg font-semibold text-green-400">
+                Demographic Completed
+              </p>
             </div>
           </div>
 
           <div className="space-y-8">
-            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
+            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-colors duration-300">
               <div className="flex items-center space-x-3 mb-4">
                 <FileText className="h-6 w-6 text-indigo-400" />
                 <Label className="text-lg font-semibold text-white">
@@ -118,22 +118,28 @@ export default function LeadershipForm({
               </p>
             </div>
 
-            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm">
-              <div className="flex items-center space-x-3 mb-4">
+            <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-colors duration-300">
+              <div className="flex items-center space-x-3 mb-6">
                 <GitBranch className="h-6 w-6 text-indigo-400" />
                 <Label className="text-lg font-semibold text-white">
                   Version Information
                 </Label>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-indigo-300 font-semibold mb-1">v1.0</p>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-white/5 rounded-xl p-4 border border-indigo-500/20">
+                  <p className="text-indigo-300 font-semibold mb-2 flex items-center">
+                    <span className="inline-block w-2 h-2 rounded-full bg-indigo-400 mr-2"></span>
+                    v1.0
+                  </p>
                   <p className="text-white/80 leading-relaxed">
                     {leadershipData.data.versionInfo["v1.0"]}
                   </p>
                 </div>
-                <div>
-                  <p className="text-indigo-300 font-semibold mb-1">v2.0</p>
+                <div className="bg-white/5 rounded-xl p-4 border border-purple-500/20">
+                  <p className="text-purple-300 font-semibold mb-2 flex items-center">
+                    <span className="inline-block w-2 h-2 rounded-full bg-purple-400 mr-2"></span>
+                    v2.0
+                  </p>
                   <p className="text-white/80 leading-relaxed">
                     {leadershipData.data.versionInfo["v2.0"]}
                   </p>
@@ -145,10 +151,13 @@ export default function LeadershipForm({
           <div className="mt-12 flex justify-center">
             <Button
               onClick={handleStartAssessment}
-              className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-8 py-4 text-lg font-semibold rounded-full hover:opacity-90 transition-all duration-300 shadow-lg hover:shadow-indigo-500/25"
+              className="group relative overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-10 py-5 text-lg font-semibold rounded-2xl hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300"
             >
-              Start Assessment
-              <ArrowRight className="ml-2 h-6 w-6" />
+              <div className="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+              <span className="relative flex items-center">
+                Start Assessment
+                <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
+              </span>
             </Button>
           </div>
         </div>

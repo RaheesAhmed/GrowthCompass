@@ -1,7 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowRight, ArrowLeft, CheckCircle, Star } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle,
+  Star,
+  User,
+  Building2,
+  Users2,
+  Briefcase,
+  Network,
+  LineChart,
+  ClipboardList,
+  Target,
+  FileText,
+  GitBranch,
+  Wallet,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +33,8 @@ import { Switch } from "@/components/ui/switch";
 import { Question } from "@/types/demographic";
 import LeadershipForm from "@/components/classification-display";
 import { LeadershipData } from "@/types/leadership";
+import { useToast } from "@/hooks/use-toast";
+import JourneyText from "@/components/JourneyText";
 
 const questions: Question[] = [
   {
@@ -133,8 +151,33 @@ interface FormData {
   "managesBudget-additional"?: string;
 }
 
+const questionIcons: { [key: string]: any } = {
+  name: User,
+  industry: Building2,
+  employeeCount: Users2,
+  department: Network,
+  jobTitle: Briefcase,
+  directReports: Users2,
+  reportingRoles: LineChart,
+  decisionLevel: Target,
+  typicalProject: ClipboardList,
+  levelsToCEO: GitBranch,
+  managesBudget: Wallet,
+};
+
+const isQuestionAnswered = (
+  questionId: string,
+  formData: FormData
+): boolean => {
+  const value = formData[questionId];
+  if (value === undefined || value === "") return false;
+  if (typeof value === "string" && value.trim() === "") return false;
+  return true;
+};
+
 export default function DemographicForm() {
-  const [currentStep, setCurrentStep] = useState(0);
+  const { toast } = useToast();
+  const [currentStep, setCurrentStep] = useState(-1);
   const [formData, setFormData] = useState<FormData>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [leadershipData, setLeadershipData] = useState<LeadershipData | null>(
@@ -146,6 +189,17 @@ export default function DemographicForm() {
   };
 
   const handleNext = () => {
+    const currentQuestion = questions[currentStep];
+
+    if (!isQuestionAnswered(currentQuestion.id, formData)) {
+      toast({
+        title: "Required Field",
+        description: "Please answer this question before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -167,22 +221,42 @@ export default function DemographicForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.decisionLevel) {
-      console.error("Please select a decision level");
+    const unansweredQuestions = questions.filter(
+      (q) => !isQuestionAnswered(q.id, formData)
+    );
+
+    if (unansweredQuestions.length > 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please answer all questions before submitting.",
+        variant: "destructive",
+      });
       return;
     }
 
-    const isValid = questions.every((question) => validateInput(question));
+    if (!formData.decisionLevel) {
+      toast({
+        title: "Required Field",
+        description: "Please select a decision level",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (
       !formData.typicalProject ||
       String(formData.typicalProject).length < 20
     ) {
-      console.error(
-        "Typical project description must be at least 20 characters"
-      );
+      toast({
+        title: "Invalid Input",
+        description:
+          "Typical project description must be at least 20 characters",
+        variant: "destructive",
+      });
       return;
     }
+
+    const isValid = questions.every((question) => validateInput(question));
 
     if (isValid) {
       setIsSubmitting(true);
@@ -232,17 +306,25 @@ export default function DemographicForm() {
   };
 
   const renderQuestion = (question: Question) => {
+    const IconComponent = questionIcons[question.id] || ClipboardList;
+
+    const questionHeader = (
+      <div className="flex items-center space-x-3 mb-4 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]">
+        <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20">
+          <IconComponent className="h-6 w-6 text-indigo-400" />
+        </div>
+        <Label htmlFor={question.id} className="text-lg font-medium text-white">
+          {question.question}
+        </Label>
+      </div>
+    );
+
     switch (question.type) {
       case "text":
       case "number":
         return (
           <div className="space-y-2">
-            <Label
-              htmlFor={question.id}
-              className="text-lg font-medium text-white"
-            >
-              {question.question}
-            </Label>
+            {questionHeader}
             <Input
               id={question.id}
               type={question.type}
@@ -266,12 +348,7 @@ export default function DemographicForm() {
       case "textarea":
         return (
           <div className="space-y-2">
-            <Label
-              htmlFor={question.id}
-              className="text-lg font-medium text-white"
-            >
-              {question.question}
-            </Label>
+            {questionHeader}
             <Textarea
               id={question.id}
               placeholder={question.placeholder}
@@ -295,9 +372,7 @@ export default function DemographicForm() {
       case "select":
         return (
           <div className="space-y-2">
-            <Label className="text-lg font-medium text-white">
-              {question.question}
-            </Label>
+            {questionHeader}
             <Select
               onValueChange={(value) => handleInputChange(question.id, value)}
             >
@@ -367,39 +442,74 @@ export default function DemographicForm() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 font-['Inter'] flex items-center justify-center">
-      {!leadershipData ? (
-        <div className="relative w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="min-h-screen bg-slate-900 font-['Inter'] flex items-center justify-center py-10">
+      {currentStep === -1 ? (
+        <div className="w-full relative">
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
+            <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob" />
+            <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000" />
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-4000" />
+          </div>
+          <div className="relative">
+            <JourneyText />
+            <div className="flex justify-center mt-8 mb-12">
+              <Button
+                onClick={() => setCurrentStep(0)}
+                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 px-8 py-6 text-lg font-semibold"
+              >
+                Begin Assessment
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : !leadershipData ? (
+        <div className="relative w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
+            <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob" />
+            <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000" />
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-4000" />
           </div>
 
           <div className="relative z-10">
             <div className="text-center space-y-4 mb-8">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20">
-                <Star className="h-4 w-4 text-indigo-400 mr-2" />
-                <span className="text-sm font-medium text-indigo-300">
-                  Demographic Information
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+                <Star className="h-5 w-5 text-indigo-400 mr-2 animate-pulse" />
+                <span className="text-sm font-medium bg-gradient-to-r from-indigo-400 to-purple-400 text-transparent bg-clip-text">
+                  Question {currentStep + 1} of {questions.length}
                 </span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl font-bold tracking-tight">
-                <span className="block text-white">Tell Us About</span>
+                <span className="block text-white drop-shadow-lg">
+                  Leadership
+                </span>
                 <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
-                  Your Leadership
+                  Assessment
                 </span>
               </h1>
 
-              <p className="text-lg text-slate-300 max-w-2xl mx-auto">
-                Help us tailor your leadership assessment by providing some
-                information about your role and responsibilities.
+              <p className="text-lg text-slate-300 max-w-xl mx-auto">
+                Shape your leadership journey with precise insights tailored to
+                your role.
               </p>
             </div>
 
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-white/20">
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {renderQuestion(questions[currentStep])}
+
+                <div className="w-full bg-white/5 rounded-full h-1.5 mb-6">
+                  <div
+                    className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-1.5 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${((currentStep + 1) / questions.length) * 100}%`,
+                    }}
+                  />
+                </div>
 
                 <div className="flex justify-between pt-6">
                   <Button
@@ -407,7 +517,7 @@ export default function DemographicForm() {
                     onClick={handlePrevious}
                     disabled={currentStep === 0}
                     variant="outline"
-                    className="text-black border-white/20 hover:bg-white/10"
+                    className="text-black border-white/20 hover:bg-white/10 transition-all duration-300"
                   >
                     <ArrowLeft className="mr-2 h-5 w-5" />
                     Previous
@@ -415,7 +525,7 @@ export default function DemographicForm() {
                   {currentStep === questions.length - 1 ? (
                     <Button
                       type="submit"
-                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white"
+                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -440,11 +550,11 @@ export default function DemographicForm() {
                               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                             />
                           </svg>
-                          Submitting...
+                          Processing...
                         </>
                       ) : (
                         <>
-                          Submit
+                          Complete Assessment
                           <CheckCircle className="ml-2 h-5 w-5" />
                         </>
                       )}
@@ -453,20 +563,14 @@ export default function DemographicForm() {
                     <Button
                       type="button"
                       onClick={handleNext}
-                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white"
+                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300"
                     >
-                      Next
+                      Next Question
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                   )}
                 </div>
               </form>
-            </div>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-slate-400">
-                Step {currentStep + 1} of {questions.length}
-              </p>
             </div>
           </div>
         </div>
