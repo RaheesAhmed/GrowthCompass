@@ -1,116 +1,133 @@
 import { responsibilityLevel } from "@/data/responsibility_level";
-
-// First, let's define the correct input type
-export interface ResponsibilityLevelInput {
-  industry: string;
-  companySize: number;
-  department: string;
-  jobTitle: string;
-  directReports: number;
-  decisionLevel: "Operational" | "Tactical" | "Strategic";
-  typicalProject: string;
-  levelsToCEO: number;
-  managesBudget: boolean;
-}
+import { ResponsibilityLevelInput } from "@/types/responsibilityLevel";
 
 export async function classifyResponsibilityLevel(
   data: ResponsibilityLevelInput
 ) {
-  if (
-    !responsibilityLevel ||
-    !Array.isArray(responsibilityLevel) ||
-    responsibilityLevel.length === 0
-  ) {
-    console.error("Responsibility levels data not loaded or empty");
-    throw new Error("Responsibility levels data not loaded or empty");
-  }
-
   const {
-    industry,
     companySize,
-    department,
-    jobTitle,
     directReports,
     decisionLevel,
-    typicalProject,
     levelsToCEO,
     managesBudget,
+    reportingRoles,
   } = data;
-
-  // Check if required fields are present
-  if (
-    !jobTitle ||
-    !decisionLevel ||
-    directReports === undefined ||
-    levelsToCEO === undefined
-  ) {
-    console.error("Missing required demographic information", data);
-    throw new Error("Missing required demographic information");
-  }
-
-  // Convert decisionLevel to lowercase for case-insensitive comparison
-  const normalizedDecisionLevel = decisionLevel.toLowerCase();
-
-  // Define weights for different factors
-  const weights = {
-    directReports: 0.3,
-    decisionLevel: 0.3,
-    levelsToCEO: 0.2,
-    managesBudget: 0.1,
-    companySize: 0.1,
-  };
-
-  // Calculate a score based on the input data
   let score = 0;
-  score += Math.min(directReports / 10, 1) * weights.directReports;
-  score +=
-    (normalizedDecisionLevel === "strategic"
-      ? 1
-      : normalizedDecisionLevel === "tactical"
+
+  // Direct reports (0.35 weight)
+  const reportsScore =
+    directReports === 0
+      ? 0.1
+      : directReports <= 5
+      ? 0.25
+      : directReports <= 8
+      ? 0.35
+      : directReports <= 12
+      ? 0.45
+      : directReports <= 20
+      ? 0.6
+      : 0.7;
+
+  // Decision level modifier
+  const isOperational = decisionLevel === "Operational";
+  const reportScoreWithModifier = isOperational
+    ? reportsScore * 0.7
+    : reportsScore;
+  score += reportScoreWithModifier * 0.35;
+
+  // Decision level (0.30 weight)
+  const decisionScore =
+    decisionLevel === "Strategic"
+      ? 1.0
+      : decisionLevel === "Tactical"
+      ? 0.45
+      : 0.25;
+  score += decisionScore * 0.3;
+
+  // Levels to CEO (0.20 weight)
+  const levelScore =
+    levelsToCEO <= 1
+      ? 1.0
+      : levelsToCEO <= 2
+      ? 0.75
+      : levelsToCEO <= 3
       ? 0.5
-      : 0) * weights.decisionLevel;
-  score += (1 - Math.min(levelsToCEO / 5, 1)) * weights.levelsToCEO;
-  score += (managesBudget ? 1 : 0) * weights.managesBudget;
-  score += Math.min(companySize / 1000, 1) * weights.companySize;
+      : levelsToCEO <= 4
+      ? 0.35
+      : 0.2;
+  score += levelScore * 0.2;
 
-  console.log("Calculated score:", score);
+  // Budget management (0.10 weight)
+  const budgetScore = managesBudget ? 0.6 : 0.2; // Reduced impact
+  score += budgetScore * 0.1;
 
-  // Map the score to responsibility levels
-  const levels = [
-    "Individual Contributor",
-    "Team Lead",
-    "Supervisor",
-    "Manager",
-    "Senior Manager / Associate Director",
-    "Director",
-    "Senior Director / Vice President",
-    "Senior Vice President",
-    "Executive Vice President",
-    "Chief Officer",
+  // Company size (0.05 weight)
+  const sizeScore =
+    companySize <= 250
+      ? 0.3
+      : companySize <= 1000
+      ? 0.4
+      : companySize <= 5000
+      ? 0.5
+      : companySize <= 10000
+      ? 0.6
+      : 0.7;
+  score += sizeScore * 0.05;
+
+  // Role complexity bonus
+  let complexityScore = 0;
+  const rolesLower = reportingRoles.toLowerCase();
+
+  if (!isOperational) {
+    if (rolesLower.includes("supervisor")) complexityScore += 0.02;
+    if (rolesLower.includes("manager")) complexityScore += 0.03;
+    if (rolesLower.includes("director")) complexityScore += 0.04;
+  }
+  score += complexityScore;
+
+  // Add minimum score based on direct reports
+  const baseScore = directReports >= 5 ? 0.35 : 0.25;
+  score = Math.max(score, baseScore);
+
+  // Refined thresholds
+  const thresholds = [
+    { score: 0.3, level: "Individual Contributor" },
+    { score: 0.34, level: "Team Lead" },
+    { score: 0.38, level: "Supervisor" },
+    { score: 0.43, level: "Manager" },
+    { score: 0.55, level: "Senior Manager / Associate Director" },
+    { score: 0.68, level: "Director" },
+    { score: 0.78, level: "Senior Director / Vice President" },
+    { score: 0.86, level: "Senior Vice President" },
+    { score: 0.92, level: "Executive Vice President" },
+    { score: 1.0, level: "Chief Officer (e.g., CEO, COO, CFO)" },
   ];
 
-  const levelIndex = Math.min(
-    Math.floor(score * levels.length),
-    levels.length - 1
-  );
-  const classifiedLevel = levels[levelIndex];
+  // Debug logging
+  console.log("Scores:", {
+    reportsScore: reportScoreWithModifier * 0.35,
+    decisionScore: decisionScore * 0.3,
+    levelScore: levelScore * 0.2,
+    budgetScore: budgetScore * 0.1,
+    sizeScore: sizeScore * 0.05,
+    complexityScore,
+    baseScore,
+    totalScore: score,
+  });
 
-  //console.log("Classified level:", classifiedLevel);
+  const classifiedLevel =
+    thresholds.find((t) => score <= t.score)?.level ||
+    thresholds[thresholds.length - 1].level;
 
-  // Find the matching level in responsibilityLevelsData
+  const levelIndex = thresholds.findIndex((t) => t.level === classifiedLevel);
   const matchedLevel = responsibilityLevel.find(
     (level) => level["Responsibility Level"] === classifiedLevel
   );
 
-  if (!matchedLevel) {
-    console.error("Unable to find matching responsibility level", {
-      classifiedLevel,
-      responsibilityLevel,
-    });
+  if (!matchedLevel)
     throw new Error("Unable to find matching responsibility level");
-  }
 
-  const result = {
+  return {
     role: classifiedLevel,
     level: levelIndex,
     description: matchedLevel.Description,
@@ -119,7 +136,4 @@ export async function classifyResponsibilityLevel(
       "v2.0": matchedLevel["v2.0"],
     },
   };
-
-  //console.log("Classification result:", result);
-  return result;
 }

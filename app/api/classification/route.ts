@@ -2,8 +2,8 @@ import { NextResponse, NextRequest } from "next/server";
 import { demographicSchema } from "@/lib/validators/demographics";
 import {
   classifyResponsibilityLevel,
-  ResponsibilityLevelInput,
 } from "@/lib/classifiers/responsibility-level";
+import {ResponsibilityLevelInput} from '@/types/responsibilityLevel'
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       decisionLevel: data.decisionLevel,
       typicalProject: data.typicalProject,
       levelsToCEO: data.levelsToCEO,
+      reportingRoles: data.reportingRoles,
       managesBudget: data.managesBudget,
     };
 
