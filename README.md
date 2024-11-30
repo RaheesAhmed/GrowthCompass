@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GrowthCompass
 
-## Getting Started
+GrowthCompass is an AI-powered leadership development platform that helps individuals and organizations transform their leadership journey through personalized assessments and guidance.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI-Powered Assessment**: Personalized leadership evaluation using advanced AI
+- **Interactive Learning**: Dynamic learning experience with real-time feedback
+- **Progress Tracking**: Monitor your leadership development journey
+- **Personalized Insights**: Get tailored recommendations for improvement
+- **User-Friendly Interface**: Modern and intuitive design for seamless experience
+
+## 💻 Tech Stack
+
+- **Frontend**: Next.js 13+, React, TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Custom components with modern design
+- **Icons**: Lucide Icons
+- **Authentication**: Built-in auth system
+
+## 🛠️ Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/RaheesAhmed/GrowthCompass.git
+   ```
+
+2. Install dependencies:
+   ```bash
+   cd GrowthCompass
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 📁 Project Structure
+
+```
+app/
+├── (auth)/         # Authentication related pages
+├── api/            # API routes
+├── assessment/     # Assessment components
+├── chat/          # Chat functionality
+├── components/    # Reusable UI components
+├── fonts/         # Custom fonts
+├── types/         # TypeScript type definitions
+└── globals.css    # Global styles
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔑 Key Components
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Home Page**: Modern landing page with animated gradients
+- **Assessment**: Interactive leadership assessment system
+- **Chat Interface**: AI-powered conversation system
+- **Progress Tracking**: Visual representation of development progress
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Contributing
 
-## Learn More
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-To learn more about Next.js, take a look at the following resources:
+## 📝 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 👥 Author
 
-## Deploy on Vercel
+- Rahees Ahmed
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📧 Contact
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For any queries or support, please reach out to [contact information]
