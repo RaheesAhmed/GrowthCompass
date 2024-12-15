@@ -22,96 +22,160 @@ export async function getLevelTwoQuestions(
 
     const numericLevel =
       typeof level === "string" ? parseInt(level, 10) : level;
+    const levelData = levelTwoQuestions.find((q) => q.Lvl === numericLevel);
 
-    const levelData = levelTwoQuestions.find(
-      (q) => q.Lvl === numericLevel
-    ) as LevelTwoQuestion;
     if (!levelData) {
       console.error(`No data found for level ${level}`);
       return [];
     }
 
-    const capabilityKey = ` ${capability}`; // Note the space before capability to match the data structure
-    const capabilityContent = levelData[capabilityKey];
+    // Find the matching capability key by normalizing both strings
+    const capabilityKey = Object.keys(levelData).find((key) => {
+      const normalizedKey = key
+        .replace(/[^\w\s]/g, "")
+        .trim()
+        .toLowerCase();
+      const normalizedCapability = capability
+        .replace(/[^\w\s]/g, "")
+        .trim()
+        .toLowerCase();
+      return normalizedKey === normalizedCapability;
+    });
 
-    if (!capabilityContent) {
+    if (!capabilityKey) {
       console.error(
         `No content found for capability "${capability}" at level ${level}`
       );
       return [];
     }
 
-    const themesAndFocusAreas = parseAllAreasForLevelTwo(capabilityContent);
+    const capabilityContent = levelData[capabilityKey];
+    if (!capabilityContent || typeof capabilityContent !== "string") {
+      console.error(
+        `Content is empty or invalid for capability "${capability}" at level ${level}`
+      );
+      return [];
+    }
 
-    return themesAndFocusAreas.map((theme, index) => ({
-      id: `${capability}-l2-${index}`,
-      capability,
-      level: numericLevel,
-      question: `Regarding "${theme}", please describe your specific challenges and experiences:`,
-      theme,
-      type: "detailed",
-      requiresReflection: true,
+    // Split content by themes
+    const themesContent = capabilityContent.split(
+      /Themes or Focus Areas:?/i
+    )[1];
+    if (!themesContent) {
+      return [];
+    }
+
+    const questions: Array<{
+      id: string;
+      capability: string;
+      level: number;
+      theme: string;
+      question: string;
+      context?: string;
+      subQuestions: Array<{
+        id: string;
+        question: string;
+        context: string;
+      }>;
+      type: string;
+      requiresReflection: boolean;
+    }> = [];
+
+    let currentTheme = "";
+    let currentContext = "";
+    let currentSubQuestions: Array<{ question: string; context: string }> = [];
+
+    const lines = themesContent
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Skip empty lines and headers
+      if (!line || line.toLowerCase().includes("themes or focus areas")) {
+        continue;
+      }
+
+      // Check if this is a new theme (ends with a colon)
+      if (line.includes(":")) {
+        // If we have a previous theme, save it
+        if (currentTheme) {
+          questions.push({
+            id: `${capability}-l2-${questions.length}`,
+            capability: capability.trim(),
+            level: numericLevel,
+            theme: currentTheme.replace(/:/g, "").trim(),
+            question: `How effectively do you handle ${currentTheme
+              .toLowerCase()
+              .replace(/:/g, "")}?`,
+            context: currentContext.trim(),
+            subQuestions: currentSubQuestions.map((sq, index) => ({
+              id: `${capability}-l2-${questions.length}-sub-${index}`,
+              question: `How do you approach ${sq.question.toLowerCase()}?`,
+              context: sq.context,
+            })),
+            type: "detailed",
+            requiresReflection: true,
+          });
+        }
+
+        // Start a new theme
+        const [themeName, themeContext] = line.split(":");
+        currentTheme = themeName.trim();
+        currentContext = themeContext ? themeContext.trim() : "";
+        currentSubQuestions = [];
+        continue;
+      }
+
+      // Check if this is a sub-point (contains a colon within the line)
+      if (line.includes(":") && !line.endsWith(":")) {
+        const [subQuestion, context] = line.split(":");
+        currentSubQuestions.push({
+          question: subQuestion.trim(),
+          context: context.trim(),
+        });
+      } else {
+        // Add to current context if it's not a sub-point
+        currentContext += (currentContext ? " " : "") + line;
+      }
+    }
+
+    // Add the last theme if there is one
+    if (currentTheme) {
+      questions.push({
+        id: `${capability}-l2-${questions.length}`,
+        capability: capability.trim(),
+        level: numericLevel,
+        theme: currentTheme.replace(/:/g, "").trim(),
+        question: `How effectively do you handle ${currentTheme
+          .toLowerCase()
+          .replace(/:/g, "")}?`,
+        context: currentContext.trim(),
+        subQuestions: currentSubQuestions.map((sq, index) => ({
+          id: `${capability}-l2-${questions.length}-sub-${index}`,
+          question: `How do you approach ${sq.question.toLowerCase()}?`,
+          context: sq.context,
+        })),
+        type: "detailed",
+        requiresReflection: true,
+      });
+    }
+
+    return questions.map((q) => ({
+      ...q,
+      theme: q.theme.replace(/[\u0092]/g, "'"),
+      context: q.context?.replace(/[\u0092]/g, "'"),
+      question: q.question.replace(/[\u0092]/g, "'"),
+      subQuestions: q.subQuestions.map((sq) => ({
+        ...sq,
+        question: sq.question.replace(/[\u0092]/g, "'"),
+        context: sq.context.replace(/[\u0092]/g, "'"),
+      })),
     }));
   } catch (error) {
     console.error("Error getting level two questions:", error);
     throw error;
   }
-}
-
-function parseAllAreasForLevelTwo(content: string) {
-  if (typeof content !== "string") {
-    return [];
-  }
-
-  const lines = content.split("\n");
-  const themes = [];
-  let currentTheme = "";
-  let isCollectingTheme = false;
-
-  for (let line of lines) {
-    line = line.trim();
-
-    // Skip empty lines
-    if (!line) continue;
-
-    // If line starts with "Themes or Focus Areas", start collecting the theme
-    if (line.toLowerCase().includes("themes or focus areas")) {
-      isCollectingTheme = true;
-      currentTheme = "";
-      continue;
-    }
-
-    // If we're collecting a theme, add the line to current theme
-    if (isCollectingTheme) {
-      // Check for bullet points or numbered items
-      if (line.match(/^[a-z]\.|^[0-9]\.|-|•/)) {
-        if (currentTheme) {
-          themes.push(currentTheme.trim());
-        }
-        currentTheme = line.replace(/^[a-z]\.|^[0-9]\.|-|•/, "").trim();
-      } else if (currentTheme) {
-        currentTheme += " " + line;
-      } else {
-        currentTheme = line;
-      }
-
-      // If we hit a significant break, save the theme
-      if (line.endsWith(".") || line.endsWith("?")) {
-        if (currentTheme) {
-          themes.push(currentTheme.trim());
-          currentTheme = "";
-        }
-      }
-    }
-  }
-
-  // Add the last theme if there is one
-  if (currentTheme) {
-    themes.push(currentTheme.trim());
-  }
-
-  // Filter out any empty themes and clean up
-  return themes
-    .filter((theme) => theme && theme.length > 0)
-    .map((theme) => theme.replace(/[\u0092]/g, "'").trim()); // Clean up special quotes
 }
