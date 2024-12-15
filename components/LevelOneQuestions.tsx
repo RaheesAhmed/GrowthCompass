@@ -418,108 +418,178 @@ export default function LevelOneQuestions({
           <div className="mt-2 h-1 w-24 mx-auto bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full" />
         </div>
 
+        {/* Rating Question Section */}
         <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-10 border border-white/10 shadow-2xl">
-          <Label className="text-2xl font-semibold text-white mb-8 block leading-relaxed">
-            {currentQuestionData.ratingQuestion.split("\n\n")[0]}
-          </Label>
+          <div className="space-y-8">
+            {/* Main Rating Question */}
+            <div>
+              <h3 className="text-2xl font-semibold text-white/90 leading-relaxed">
+                Consider your role in leading your team{" "}
+                <span className="text-indigo-400">–</span> from distributing
+                tasks fairly, supporting team members' growth, to ensuring good
+                teamwork.{" "}
+                <span className="block mt-2 text-xl">
+                  Rate your effectiveness in these areas from{" "}
+                  <span className="text-rose-400/90">1 (Not Effective)</span> to{" "}
+                  <span className="text-emerald-400/90">
+                    5 (Highly Effective)
+                  </span>
+                </span>
+              </h3>
+            </div>
 
-          <div className="flex items-center justify-center space-x-6 mb-8">
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <Button
-                key={rating}
-                type="button"
-                onClick={() => handleInputChange("rating", rating)}
-                variant="outline"
-                className={`w-20 h-20 rounded-2xl transition-all duration-500 transform hover:scale-105 ${
-                  (Number(
-                    responses[`${currentArea}-${currentQuestion}-rating`]
-                  ) || 0) >= rating
-                    ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-none shadow-lg shadow-indigo-500/25"
-                    : "border-2 border-indigo-300/20 hover:border-indigo-400/40 bg-white/[0.02]"
-                }`}
-              >
-                <Star
-                  className={`w-10 h-10 transition-all duration-500 ${
-                    (Number(
-                      responses[`${currentArea}-${currentQuestion}-rating`]
-                    ) || 0) >= rating
-                      ? "fill-white stroke-none"
-                      : "stroke-indigo-300/60"
-                  }`}
-                />
-              </Button>
-            ))}
+            {/* Rating Stars */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-6">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Button
+                    key={rating}
+                    type="button"
+                    onClick={() => handleInputChange("rating", rating)}
+                    variant="outline"
+                    className={`w-16 h-16 rounded-xl transition-all duration-500 transform hover:scale-105 ${
+                      (Number(
+                        responses[`${currentArea}-${currentQuestion}-rating`]
+                      ) || 0) >= rating
+                        ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-none shadow-lg shadow-indigo-500/25"
+                        : "border-2 border-indigo-300/20 hover:border-indigo-400/40 bg-white/[0.02]"
+                    }`}
+                  >
+                    <Star
+                      className={`w-8 h-8 transition-all duration-500 ${
+                        (Number(
+                          responses[`${currentArea}-${currentQuestion}-rating`]
+                        ) || 0) >= rating
+                          ? "fill-white stroke-none"
+                          : "stroke-indigo-300/60"
+                      }`}
+                    />
+                  </Button>
+                ))}
+              </div>
+              <div className="flex justify-center items-center space-x-2 text-sm font-medium">
+                <span className="text-rose-400/90">Not Effectively</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-emerald-400/90">Very Effectively</span>
+              </div>
+            </div>
+
+            {/* Detailed Explanation */}
+            <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/5">
+              <p className="text-base text-white/70 leading-relaxed">
+                {currentQuestionData.ratingQuestion.split("\n\n")[1]}
+              </p>
+            </div>
+
+            {/* Response Section */}
+            <div className="pt-6 border-t border-white/10">
+              <Label className="text-lg font-medium text-white/80 mb-4 block">
+                Share your thoughts and experiences:
+              </Label>
+              <Textarea
+                value={
+                  (responses[
+                    `${currentArea}-${currentQuestion}-response`
+                  ] as string) || ""
+                }
+                onChange={(e) => handleInputChange("response", e.target.value)}
+                placeholder="Describe your experiences and provide specific examples..."
+                className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
+                  focus:border-indigo-500/50 focus:ring-indigo-500/50 placeholder:text-slate-500
+                  transition-all duration-300 text-white/90"
+              />
+            </div>
           </div>
-          <p className="text-center text-sm text-slate-400 mb-8 font-medium">
-            Rate from 1 (Not Effectively) to 5 (Very Effectively)
-          </p>
-
-          <Textarea
-            value={
-              (responses[
-                `${currentArea}-${currentQuestion}-response`
-              ] as string) || ""
-            }
-            onChange={(e) => handleInputChange("response", e.target.value)}
-            placeholder="Share your thoughts and experiences..."
-            className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
-              focus:border-indigo-500/50 focus:ring-indigo-500/50 placeholder:text-slate-500
-              transition-all duration-300 text-white/90"
-          />
         </div>
 
+        {/* Reflection Section */}
         <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-10 border border-white/10 shadow-2xl">
-          <Label className="text-2xl font-semibold text-white mb-8 block leading-relaxed">
-            {currentQuestionData.reflection.split("\n\n")[0]}
-          </Label>
+          <div className="space-y-8">
+            {/* Main Reflection Question */}
+            <div>
+              <h3 className="text-2xl font-semibold text-white/90 leading-relaxed">
+                How confident do you feel in your ability to lead your team
+                effectively?{" "}
+                <span className="block mt-2 text-xl">
+                  Rate from{" "}
+                  <span className="text-rose-400/90">1 (Not Confident)</span> to{" "}
+                  <span className="text-emerald-400/90">
+                    5 (Very Confident)
+                  </span>
+                </span>
+              </h3>
+            </div>
 
-          <div className="flex items-center justify-center space-x-6 mb-8">
-            {[1, 2, 3, 4, 5].map((rating) => (
-              <Button
-                key={rating}
-                type="button"
-                onClick={() => handleInputChange("reflectionRating", rating)}
-                variant="outline"
-                className={`w-20 h-20 rounded-2xl transition-all duration-500 transform hover:scale-105 ${
-                  (Number(
-                    responses[
-                      `${currentArea}-${currentQuestion}-reflectionRating`
-                    ]
-                  ) || 0) >= rating
-                    ? "bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white border-none shadow-lg shadow-purple-500/25"
-                    : "border-2 border-purple-300/20 hover:border-purple-400/40 bg-white/[0.02]"
-                }`}
-              >
-                <Star
-                  className={`w-10 h-10 transition-all duration-500 ${
-                    (Number(
-                      responses[
-                        `${currentArea}-${currentQuestion}-reflectionRating`
-                      ]
-                    ) || 0) >= rating
-                      ? "fill-white stroke-none"
-                      : "stroke-purple-300/60"
-                  }`}
-                />
-              </Button>
-            ))}
+            {/* Rating Stars */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-6">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <Button
+                    key={rating}
+                    type="button"
+                    onClick={() =>
+                      handleInputChange("reflectionRating", rating)
+                    }
+                    variant="outline"
+                    className={`w-16 h-16 rounded-xl transition-all duration-500 transform hover:scale-105 ${
+                      (Number(
+                        responses[
+                          `${currentArea}-${currentQuestion}-reflectionRating`
+                        ]
+                      ) || 0) >= rating
+                        ? "bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white border-none shadow-lg shadow-purple-500/25"
+                        : "border-2 border-purple-300/20 hover:border-purple-400/40 bg-white/[0.02]"
+                    }`}
+                  >
+                    <Star
+                      className={`w-8 h-8 transition-all duration-500 ${
+                        (Number(
+                          responses[
+                            `${currentArea}-${currentQuestion}-reflectionRating`
+                          ]
+                        ) || 0) >= rating
+                          ? "fill-white stroke-none"
+                          : "stroke-purple-300/60"
+                      }`}
+                    />
+                  </Button>
+                ))}
+              </div>
+              <div className="flex justify-center items-center space-x-2 text-sm font-medium">
+                <span className="text-rose-400/90">Not Confident</span>
+                <span className="text-slate-500">→</span>
+                <span className="text-emerald-400/90">Very Confident</span>
+              </div>
+            </div>
+
+            {/* Detailed Explanation */}
+            <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/5">
+              <p className="text-base text-white/70 leading-relaxed">
+                {currentQuestionData.reflection.split("\n\n")[1]}
+              </p>
+            </div>
+
+            {/* Response Section */}
+            <div className="pt-6 border-t border-white/10">
+              <Label className="text-lg font-medium text-white/80 mb-4 block">
+                Share your reflection:
+              </Label>
+              <Textarea
+                value={
+                  (responses[
+                    `${currentArea}-${currentQuestion}-reflection`
+                  ] as string) || ""
+                }
+                onChange={(e) =>
+                  handleInputChange("reflection", e.target.value)
+                }
+                placeholder="Reflect on your experiences and areas for growth..."
+                className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
+                  focus:border-purple-500/50 focus:ring-purple-500/50 placeholder:text-slate-500
+                  transition-all duration-300 text-white/90"
+              />
+            </div>
           </div>
-          <p className="text-center text-sm text-slate-400 mb-8 font-medium">
-            Rate from 1 (Not Confident) to 5 (Very Confident)
-          </p>
-
-          <Textarea
-            value={
-              (responses[
-                `${currentArea}-${currentQuestion}-reflection`
-              ] as string) || ""
-            }
-            onChange={(e) => handleInputChange("reflection", e.target.value)}
-            placeholder="Reflect on your experience..."
-            className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
-              focus:border-purple-500/50 focus:ring-purple-500/50 placeholder:text-slate-500
-              transition-all duration-300 text-white/90"
-          />
         </div>
       </div>
     );

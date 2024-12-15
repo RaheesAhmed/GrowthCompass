@@ -1,150 +1,497 @@
 "use client";
 
-import { useState } from "react";
-import { Message } from "@/types/types";
-import { UserCircleIcon } from "@heroicons/react/24/solid";
+import * as React from "react";
+import { Paperclip, User, Bot, Copy, Check, Brain, Send } from "lucide-react";
+import { AssistantStream } from "openai/lib/AssistantStream";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import Sidebar from "@/components/ChatSideBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
+import AssistantFunctionsCard from "@/components/AssistantFunctionsCard";
 
-export default function ChatPage() {
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [threadId, setThreadId] = useState<string | null>(null);
+type MessageProps = {
+  role: "user" | "assistant" | "code";
+  content: string;
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!message.trim()) return;
+type SessionProps = {
+  id: string;
+  messages: MessageProps[];
+  title?: string;
+  createdAt: number;
+};
 
-    const userMessage: Message = { role: "user", content: message };
-    setMessages((prev) => [...prev, userMessage]);
-    setMessage("");
-    setIsLoading(true);
+interface CodeProps extends React.HTMLAttributes<HTMLElement> {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
 
-    try {
-      const res = await fetch("/api/streaming", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message, threadId }),
-      });
+const CopyButton = ({ text }: { text: string }) => {
+  const [copied, setCopied] = React.useState(false);
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      // Get and store the thread ID
-      const newThreadId = res.headers.get("X-Thread-Id");
-      if (newThreadId) {
-        setThreadId(newThreadId);
-      }
-
-      // Create a temporary message for streaming
-      const assistantMessage: Message = { role: "assistant", content: "" };
-      setMessages((prev) => [...prev, assistantMessage]);
-
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error("No reader available");
-
-      const decoder = new TextDecoder();
-      let streamedContent = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        streamedContent += chunk;
-
-        setMessages((prev) => {
-          const newMessages = [...prev];
-          newMessages[newMessages.length - 1] = {
-            role: "assistant",
-            content: streamedContent,
-          };
-          return newMessages;
-        });
-      }
-    } catch (error) {
-      console.error("Streaming error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `Error: ${
-            error instanceof Error ? error.message : "Unknown error occurred"
-          }`,
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`flex items-start gap-4 ${
-              msg.role === "assistant" ? "bg-white rounded-lg shadow-sm" : ""
-            } p-4`}
-          >
-            {msg.role === "user" ? (
-              <UserCircleIcon className="w-8 h-8 text-gray-600" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-                A
-              </div>
-            )}
-            <div className="flex-1 prose prose-sm max-w-none">
-              {msg.role === "assistant" ? (
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  className="markdown-content"
-                >
-                  {msg.content}
-                </ReactMarkdown>
-              ) : (
-                <pre className="whitespace-pre-wrap font-sans">
-                  {msg.content}
-                </pre>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+    <button
+      className="absolute right-2 top-2 p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+      onClick={handleCopy}
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-green-400" />
+      ) : (
+        <Copy className="h-4 w-4 text-gray-400" />
+      )}
+    </button>
+  );
+};
 
-      {/* Input form */}
-      <div className="border-t bg-white p-4">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto relative">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="w-full p-3 pr-20 border rounded-lg focus:outline-none focus:border-green-500 resize-none"
-            placeholder="Send a message..."
-            rows={1}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !message.trim()}
-            className="absolute right-2 bottom-2 px-4 py-1.5 bg-green-500 text-white rounded-lg 
-                     hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed
-                     transition-colors"
+const LoadingSpinner = () => {
+  return (
+    <div className="flex items-center space-x-2">
+      <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      <span className="text-sm text-gray-500">Generating response...</span>
+    </div>
+  );
+};
+
+const Message = ({ role, content }: MessageProps) => {
+  const isUser = role === "user";
+  const isGenerating = content === "" && role === "assistant";
+
+  return (
+    <div
+      className={cn(
+        "group w-full text-gray-800 border-b border-black/10",
+        isUser ? "bg-white" : "bg-gray-50"
+      )}
+    >
+      <div className="text-base gap-4 md:gap-6 md:max-w-2xl lg:max-w-[38rem] xl:max-w-3xl p-4 md:py-6 lg:px-0 m-auto flex">
+        <div className="flex-shrink-0 flex flex-col relative items-end">
+          <div
+            className={cn(
+              "rounded-sm flex items-center justify-center",
+              isUser ? "bg-indigo-600" : "bg-indigo-200",
+              "w-[30px] h-[30px]"
+            )}
           >
-            {isLoading ? "..." : "Send"}
-          </button>
-        </form>
+            {isUser ? (
+              <User className="h-4 w-4 text-white" />
+            ) : (
+              <Bot className="h-4 w-4 text-indigo-600" />
+            )}
+          </div>
+        </div>
+        <div className="relative flex w-[calc(100%-50px)] flex-col gap-1">
+          {isUser ? (
+            <p className="text-gray-800">{content}</p>
+          ) : isGenerating ? (
+            <LoadingSpinner />
+          ) : (
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code({
+                  node,
+                  inline,
+                  className,
+                  children,
+                  ...props
+                }: CodeProps) {
+                  const match = /language-(\w+)/.exec(className || "");
+                  const code = String(children).replace(/\n$/, "");
+                  return !inline && match ? (
+                    <div className="relative">
+                      <SyntaxHighlighter
+                        {...props}
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        className="rounded-md !bg-[#1E1E1E] !mt-0"
+                        showLineNumbers
+                        customStyle={{
+                          margin: 0,
+                          padding: "1.5rem 1rem",
+                          paddingRight: "2.5rem",
+                        }}
+                      >
+                        {code}
+                      </SyntaxHighlighter>
+                      <CopyButton text={code} />
+                    </div>
+                  ) : (
+                    <code
+                      {...props}
+                      className={cn(
+                        "bg-gray-100 rounded px-1 py-0.5",
+                        className
+                      )}
+                    >
+                      {children}
+                    </code>
+                  );
+                },
+                p: ({ children }) => (
+                  <p className="text-gray-600">{children}</p>
+                ),
+                a: ({ node, ...props }) => (
+                  <a
+                    {...props}
+                    className="text-indigo-600 hover:text-indigo-700 transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                ),
+                table: ({ node, ...props }) => (
+                  <table
+                    {...props}
+                    className="border-collapse border border-gray-200"
+                  />
+                ),
+                th: ({ node, ...props }) => (
+                  <th
+                    {...props}
+                    className="border border-gray-200 px-4 py-2 bg-gray-50"
+                  />
+                ),
+                td: ({ node, ...props }) => (
+                  <td {...props} className="border border-gray-200 px-4 py-2" />
+                ),
+                blockquote: ({ node, ...props }) => (
+                  <blockquote
+                    {...props}
+                    className="border-l-4 border-indigo-200 pl-4 italic my-4 text-gray-600"
+                  />
+                ),
+              }}
+            >
+              {content}
+            </ReactMarkdown>
+          )}
+        </div>
       </div>
     </div>
   );
-}
+};
+
+const autoResizeTextArea = (element: HTMLTextAreaElement) => {
+  element.style.height = "inherit";
+  element.style.height = `${Math.min(element.scrollHeight, 200)}px`; // Max height of 200px
+};
+
+const ChatPage = () => {
+  const [messages, setMessages] = React.useState<MessageProps[]>([]);
+  const [sessions, setSessions] = React.useState<SessionProps[]>(() => {
+    if (typeof window !== "undefined") {
+      const savedSessions = localStorage.getItem("chatSessions");
+      return savedSessions ? JSON.parse(savedSessions) : [];
+    }
+    return [];
+  });
+  const [activeSessionIndex, setActiveSessionIndex] = React.useState<
+    number | null
+  >(null);
+  const [userInput, setUserInput] = React.useState("");
+  const [fileInfo, setFileInfo] = React.useState("");
+  const [threadId, setThreadId] = React.useState("");
+  const [isUploading, setIsUploading] = React.useState(false);
+  const scrollAreaRef = React.useRef<HTMLDivElement>(null);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const createThread = async () => {
+      const res = await fetch(`/api/assistants/threads`, { method: "POST" });
+      const data = await res.json();
+      setThreadId(data.threadId);
+    };
+    createThread();
+  }, []);
+
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  React.useEffect(() => {
+    if (activeSessionIndex !== null && sessions[activeSessionIndex]) {
+      const updatedSessions = [...sessions];
+      updatedSessions[activeSessionIndex] = {
+        ...updatedSessions[activeSessionIndex],
+        messages: messages,
+      };
+      setSessions(updatedSessions);
+      localStorage.setItem("chatSessions", JSON.stringify(updatedSessions));
+    }
+  }, [messages, activeSessionIndex]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/api/assistants/files/code-interpreter", {
+          method: "POST",
+          body: formData,
+        });
+        const result = await response.json();
+        setFileInfo(`${file.name} (ID: ${result.fileId})`);
+        setUserInput(`${file.name}`);
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isUploading || (!userInput.trim() && !fileInfo)) return;
+
+    const messageContent = `${userInput} ${fileInfo}`.trim();
+    setMessages((prev) => [...prev, { role: "user", content: messageContent }]);
+
+    setTimeout(scrollToBottom, 100);
+
+    if (activeSessionIndex !== null && messages.length === 0) {
+      const updatedSessions = [...sessions];
+      updatedSessions[activeSessionIndex] = {
+        ...updatedSessions[activeSessionIndex],
+        title:
+          messageContent.slice(0, 30) +
+          (messageContent.length > 30 ? "..." : ""),
+      };
+      setSessions(updatedSessions);
+      localStorage.setItem("chatSessions", JSON.stringify(updatedSessions));
+    }
+
+    setUserInput("");
+    setFileInfo("");
+    sendMessage(messageContent);
+  };
+
+  const sendMessage = async (text: string) => {
+    if (!threadId) return;
+
+    try {
+      const response = await fetch(
+        `/api/assistants/threads/${threadId}/messages`,
+        {
+          method: "POST",
+          body: JSON.stringify({ content: text }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+
+      if (response.body) {
+        const stream = AssistantStream.fromReadableStream(response.body);
+        handleReadableStream(stream);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      showError("Failed to send message. Please try again.");
+    }
+  };
+
+  const handleReadableStream = (stream: AssistantStream) => {
+    stream.on("textCreated", () => appendMessage("assistant", ""));
+    stream.on("textDelta", (delta) => {
+      if (delta.value != null) appendToLastMessage(delta.value);
+    });
+  };
+
+  const appendToLastMessage = (text: string) => {
+    setMessages((prev) => {
+      const lastMessage = prev[prev.length - 1];
+      const updatedMessages = [
+        ...prev.slice(0, -1),
+        { ...lastMessage, content: lastMessage.content + text },
+      ];
+      setTimeout(scrollToBottom, 100);
+      return updatedMessages;
+    });
+  };
+
+  const appendMessage = (
+    role: "user" | "assistant" | "code",
+    content: string
+  ) => {
+    setMessages((prev) => [...prev, { role, content }]);
+  };
+
+  const handleNewChat = () => {
+    const newSession: SessionProps = {
+      id: crypto.randomUUID(),
+      messages: [],
+      createdAt: Date.now(),
+    };
+
+    setSessions((prevSessions) => [newSession, ...prevSessions]);
+    setMessages([]);
+    setActiveSessionIndex(0);
+
+    const createThread = async () => {
+      const res = await fetch(`/api/assistants/threads`, { method: "POST" });
+      const data = await res.json();
+      setThreadId(data.threadId);
+    };
+    createThread();
+  };
+
+  const handleSelectChat = (index: number) => {
+    if (index >= 0 && index < sessions.length) {
+      setActiveSessionIndex(index);
+      setMessages(sessions[index].messages);
+    }
+  };
+
+  const handleClearAllChats = () => {
+    setSessions([]);
+    localStorage.removeItem("chatSessions");
+    setActiveSessionIndex(null);
+    setMessages([]);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const showError = (message: string) => {
+    toast({
+      variant: "destructive",
+      description: message,
+    });
+  };
+
+  const handleCardClick = (description: string) => {
+    setUserInput(description);
+  };
+
+  return (
+    <div className="flex h-[100vh] overflow-hidden">
+      <Sidebar
+        sessions={sessions}
+        activeSessionIndex={activeSessionIndex}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onClearAllChats={handleClearAllChats}
+      />
+      <div className="relative flex h-full w-full flex-1 flex-col bg-white">
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full overflow-y-auto" ref={scrollAreaRef}>
+            <div className="flex flex-col items-center text-sm h-full">
+              {messages.length === 0 && (
+                <div className="text-center px-3 py-10 text-gray-600 ">
+                  <Brain className="h-12 w-12 mx-auto mb-4 text-indigo-600" />
+                  <h2 className="text-2xl font-bold mb-2 text-gray-800">
+                    Welcome to GrowthCompas
+                  </h2>
+
+                  <AssistantFunctionsCard onCardClick={handleCardClick} />
+                </div>
+              )}
+              {messages.map((msg, index) => (
+                <Message key={index} role={msg.role} content={msg.content} />
+              ))}
+              <div
+                ref={messagesEndRef}
+                className="h-32 md:h-48 flex-shrink-0"
+              />
+            </div>
+          </ScrollArea>
+        </div>
+        <div className="absolute bottom-0 left-0 w-full border-t md:border-t-0 bg-gradient-to-b from-transparent via-white to-white pt-6">
+          <form
+            onSubmit={handleSubmit}
+            className="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl"
+          >
+            <div className="relative flex h-full flex-1 items-center">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="absolute left-3 bg-indigo-600  text-white hover:text-white hover:bg-indigo-600"
+                onClick={() => document.getElementById("file-upload")?.click()}
+                disabled={isUploading}
+              >
+                {isUploading ? (
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+                ) : (
+                  <Paperclip className="h-4 w-4" />
+                )}
+              </Button>
+              <Textarea
+                value={userInput}
+                onChange={(e) => {
+                  setUserInput(e.target.value);
+                  autoResizeTextArea(e.target);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                placeholder="write your message here..."
+                className="w-full resize-none bg-white  px-3 pt-8 py-4 pl-16 pr-12 rounded-xl border border-gray-200/20 shadow-[0_0_15px_rgba(0,0,0,0.05)]  "
+                style={{
+                  height: "inherit",
+                  maxHeight: "200px",
+                  minHeight: "52px",
+                }}
+              />
+              <Button
+                type="submit"
+                size="icon"
+                variant="ghost"
+                className={cn(
+                  "absolute right-3 bg-indigo-600  text-white hover:text-white hover:bg-indigo-600",
+                  !userInput.trim() &&
+                    !fileInfo &&
+                    "opacity-50 cursor-not-allowed"
+                )}
+                disabled={isUploading || (!userInput.trim() && !fileInfo)}
+              >
+                <Send className="h-6 w-6" />
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <input
+        type="file"
+        id="file-upload"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+    </div>
+  );
+};
+
+export default ChatPage;

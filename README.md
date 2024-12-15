@@ -12,7 +12,7 @@ GrowthCompass is an AI-powered leadership development platform that helps indivi
 
 ## 💻 Tech Stack
 
-- **Frontend**: Next.js 13+, React, TypeScript
+- **Frontend**: Next.js 14+, React, TypeScript
 - **Styling**: Tailwind CSS
 - **UI Components**: Custom components with modern design
 - **Icons**: Lucide Icons
@@ -21,17 +21,20 @@ GrowthCompass is an AI-powered leadership development platform that helps indivi
 ## 🛠️ Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/RaheesAhmed/GrowthCompass.git
    ```
 
 2. Install dependencies:
+
    ```bash
    cd GrowthCompass
    npm install
    ```
 
 3. Run the development server:
+
    ```bash
    npm run dev
    ```
