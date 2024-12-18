@@ -5,7 +5,7 @@ export const DemographicQuestions = async (): Promise<Question[]> => {
     {
       id: "name",
       type: "text",
-      question: "Please enter what name you'd like to use in your report.",
+      question: "Name",
       placeholder: "Enter your name",
     },
     {
@@ -13,16 +13,12 @@ export const DemographicQuestions = async (): Promise<Question[]> => {
       type: "text",
       question: "What industry is your business in?",
       placeholder: "e.g., Healthcare, Technology, Manufacturing, Education",
-      helperText:
-        "Please specify the industry your organization operates within.",
     },
     {
       id: "employeeCount",
       type: "number",
       question: "How many people work at your company?",
-      placeholder: "e.g., 500",
-      helperText:
-        "Please enter the total number of employees in your entire organization.",
+      placeholder: "Enter the total number of employees",
     },
     {
       id: "department",
@@ -30,21 +26,75 @@ export const DemographicQuestions = async (): Promise<Question[]> => {
       question:
         "What department or division do you primarily work in within your organization?",
       placeholder: "e.g., Finance, Western Region Operations, Company-wide",
-      helperText:
-        "For those with broader responsibilities, such as overseeing multiple areas or the entire organization, indicate the most encompassing area.",
     },
     {
       id: "jobTitle",
       type: "text",
       question: "What is your job title?",
-      placeholder: "Enter your exact title as used in your workplace",
+      placeholder: "Enter your job title",
+    },
+    {
+      id: "jobFunction",
+      type: "select",
+      question: "What is your job function?",
+      options: [
+        {
+          value: "individual_contributor",
+          label: "Individual Contributor",
+          description:
+            "Responsible for executing specific tasks, without formal leadership or decision-making responsibilities",
+        },
+        {
+          value: "team_lead",
+          label: "Team Lead",
+          description:
+            "Overseeing a small team, but not setting broad strategic direction",
+        },
+        {
+          value: "department_manager",
+          label: "Department Manager",
+          description:
+            "Responsible for managing people and projects, influencing departmental direction",
+        },
+        {
+          value: "senior_manager",
+          label: "Senior Manager",
+          description:
+            "Managing significant projects or key functions, with an operational and strategic focus",
+        },
+        {
+          value: "director",
+          label: "Director",
+          description:
+            "Responsible for overseeing multiple teams or departments, setting strategic direction",
+        },
+        {
+          value: "executive",
+          label: "Executive",
+          description:
+            "Responsible for large areas or several departments, with broad strategic and operational responsibility",
+        },
+        {
+          value: "c_level",
+          label: "C-Level Executive",
+          description: "Lead entire organization or major functional sectors",
+        },
+      ],
+    },
+    {
+      id: "primaryResponsibilities",
+      type: "textarea",
+      question: "What are the primary responsibilities of your role?",
+      placeholder:
+        "Please describe your key responsibilities. For example, if you're in a management position, what do you manage? What types of projects or teams do you oversee? If you're an individual contributor, what specific tasks or functions are you responsible for?",
+      helperText:
+        "Please provide a detailed description of your responsibilities and their impact",
     },
     {
       id: "directReports",
       type: "number",
       question: "How many people report directly to you?",
       placeholder: "Enter a number (0 if none)",
-      helperText: "If none, enter '0'",
     },
     {
       id: "reportingRoles",
@@ -54,10 +104,28 @@ export const DemographicQuestions = async (): Promise<Question[]> => {
       helperText: "If none, please state 'None'",
     },
     {
-      id: "decisionLevel",
+      id: "hasIndirectReports",
       type: "select",
       question:
-        "What level of decisions do you primarily make? (Please select the most appropriate option)",
+        "Do any of your direct reports have direct reports of their own?",
+      options: [
+        {
+          value: "yes",
+          label: "Yes",
+          description:
+            "If yes, please specify the number of direct reports each of your direct reports has",
+        },
+        {
+          value: "no",
+          label: "No",
+          description: "If no, please state 'None'",
+        },
+      ],
+    },
+    {
+      id: "decisionLevel",
+      type: "select",
+      question: "What level of decisions do you primarily make?",
       options: [
         {
           value: "operational",
@@ -95,18 +163,34 @@ export const DemographicQuestions = async (): Promise<Question[]> => {
         "How many levels are there between you and the highest-ranking executive in your organization?",
       placeholder: "Enter a number",
       helperText:
-        "Count the layers of management from you to the CEO or equivalent. Example: If you report to a Manager, who reports to a VP, who reports to the CEO, you would enter '3'.",
+        "Example: If you report to a Manager, who reports to a VP, who reports to the CEO, you would enter '3'.",
     },
     {
       id: "managesBudget",
-      type: "boolean",
+      type: "select",
       question: "Does your role require you to manage a budget?",
-      additionalInfo: {
-        question:
-          "If yes, please specify whether it is for your department only or if it spans multiple departments.",
-        placeholder:
-          "e.g., Yes, I manage the budget for the entire marketing department",
-      },
+      options: [
+        {
+          value: "no",
+          label: "No",
+          description: "If no, please state 'None'",
+        },
+        {
+          value: "department",
+          label: "Yes - Department budget",
+          description: "If yes, please specify the department",
+        },
+        {
+          value: "multiple",
+          label: "Yes - Multiple departments",
+          description: "If yes, please specify the departments",
+        },
+        {
+          value: "company",
+          label: "Yes - Company-wide",
+          description: "If yes, please specify the company",
+        },
+      ],
     },
   ];
 };

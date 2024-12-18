@@ -1,9 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { demographicSchema } from "@/lib/validators/demographics";
-import {
-  classifyResponsibilityLevel,
-} from "@/lib/classifiers/responsibility-level";
-import {ResponsibilityLevelInput} from '@/types/responsibilityLevel'
+import { classifyResponsibilityLevel } from "@/lib/classifiers/responsibility-level";
+import { ResponsibilityLevelInput } from "@/types/responsibilityLevel";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,23 +25,29 @@ export async function POST(request: NextRequest) {
 
     const data = validationResult.data;
 
+    // Map the validated data to the classifier input format
     const classifierInput: ResponsibilityLevelInput = {
-      industry: data.industry,
-      companySize: data.companySize,
-      department: data.department,
-      jobTitle: data.jobTitle,
+      employeeCount: data.employeeCount,
       directReports: data.directReports,
-      decisionLevel: data.decisionLevel,
-      typicalProject: data.typicalProject,
+      decisionLevel: data.decisionLevel.toLowerCase(),
       levelsToCEO: data.levelsToCEO,
       reportingRoles: data.reportingRoles,
+      jobFunction: data.jobFunction,
+      hasIndirectReports: data.hasIndirectReports,
       managesBudget: data.managesBudget,
+      // Additional context fields
+      industry: data.industry,
+      department: data.department,
+      jobTitle: data.jobTitle,
+      primaryResponsibilities: data.primaryResponsibilities,
+      typicalProject: data.typicalProject,
     };
 
     const responsibilityLevel = await classifyResponsibilityLevel(
       classifierInput
     );
 
+    // Return the classification results with additional context
     return NextResponse.json({
       success: true,
       data: {
@@ -51,12 +55,22 @@ export async function POST(request: NextRequest) {
         role: responsibilityLevel.role,
         description: responsibilityLevel.description,
         versionInfo: responsibilityLevel.versionInfo,
+        context: {
+          jobFunction: data.jobFunction,
+          decisionLevel: data.decisionLevel,
+          directReports: data.directReports,
+          hasIndirectReports: data.hasIndirectReports,
+          managesBudget: data.managesBudget,
+        },
       },
     });
   } catch (error) {
     console.error("Internal Server Error:", error);
     return NextResponse.json(
-      { error: "Internal server error", details: error },
+      {
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

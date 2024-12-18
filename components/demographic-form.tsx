@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowRight,
   ArrowLeft,
@@ -9,8 +9,8 @@ import {
   User,
   Building2,
   Users2,
-  Briefcase,
   Network,
+  Briefcase,
   LineChart,
   ClipboardList,
   Target,
@@ -29,126 +29,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Question } from "@/types/demographic";
 import LeadershipForm from "@/components/classification-display";
 import { LeadershipData } from "@/types/leadership";
 import { useToast } from "@/hooks/use-toast";
 import JourneyText from "@/components/JourneyText";
-
-const questions: Question[] = [
-  {
-    id: "name",
-    type: "text",
-    question: "Please enter what name you'd like to use in your report.",
-    placeholder: "Enter your name",
-  },
-  {
-    id: "industry",
-    type: "text",
-    question: "What industry is your business in?",
-    placeholder: "e.g., Healthcare, Technology, Manufacturing, Education",
-    helperText:
-      "Please specify the industry your organization operates within.",
-  },
-  {
-    id: "employeeCount",
-    type: "number",
-    question: "How many people work at your company?",
-    placeholder: "e.g., 500",
-    helperText:
-      "Please enter the total number of employees in your entire organization.",
-  },
-  {
-    id: "department",
-    type: "text",
-    question:
-      "What department or division do you primarily work in within your organization?",
-    placeholder: "e.g., Finance, Western Region Operations, Company-wide",
-    helperText:
-      "For those with broader responsibilities, such as overseeing multiple areas or the entire organization, indicate the most encompassing area.",
-  },
-  {
-    id: "jobTitle",
-    type: "text",
-    question: "What is your job title?",
-    placeholder: "Enter your exact title as used in your workplace",
-  },
-  {
-    id: "directReports",
-    type: "number",
-    question: "How many people report directly to you?",
-    placeholder: "Enter a number (0 if none)",
-    helperText: "If none, enter '0'",
-  },
-  {
-    id: "reportingRoles",
-    type: "text",
-    question: "What types of roles report directly to you? Please list them.",
-    placeholder: "e.g., Manager of Engineering, Sales Coordinator",
-    helperText: "If none, please state 'None'",
-  },
-  {
-    id: "decisionLevel",
-    type: "select",
-    question:
-      "What level of decisions do you primarily make? (Please select the most appropriate option)",
-    options: [
-      {
-        value: "operational",
-        label: "Operational",
-        description:
-          "Day-to-day decisions within your specific role, like processing invoices, responding to customer queries, or maintaining records",
-      },
-      {
-        value: "tactical",
-        label: "Tactical",
-        description:
-          "Medium-term decisions affecting your team or department, such as improving workflow efficiency or determining project timelines",
-      },
-      {
-        value: "strategic",
-        label: "Strategic",
-        description:
-          "Long-term decisions that shape major aspects of the organization, such as developing new company-wide programs, setting overarching business strategies, or leading major organizational changes",
-      },
-    ],
-  },
-  {
-    id: "typicalProject",
-    type: "textarea",
-    question: "Describe a typical project or task you are responsible for.",
-    placeholder:
-      "Please include details about what the task involves, any teams or departments you interact with, and its impact on your organization",
-    helperText:
-      "Example: 'I develop IT security policies that align with company-wide risk management strategies and coordinate with the legal and tech departments to implement them.'",
-  },
-  {
-    id: "levelsToCEO",
-    type: "number",
-    question:
-      "How many levels are there between you and the highest-ranking executive in your organization?",
-    placeholder: "Enter a number",
-    helperText:
-      "Count the layers of management from you to the CEO or equivalent. Example: If you report to a Manager, who reports to a VP, who reports to the CEO, you would enter '3'.",
-  },
-  {
-    id: "managesBudget",
-    type: "boolean",
-    question: "Does your role require you to manage a budget?",
-    additionalInfo: {
-      question:
-        "If yes, please specify whether it is for your department only or if it spans multiple departments.",
-      placeholder:
-        "e.g., Yes, I manage the budget for the entire marketing department",
-    },
-  },
-];
+import { DemographicQuestions } from "@/utils/demographic_questions";
 
 interface FormData {
   [key: string]: string | number | boolean | undefined;
   typicalProject?: string;
-  "managesBudget-additional"?: string;
+  primaryResponsibilities?: string;
 }
 
 const questionIcons: { [key: string]: any } = {
@@ -157,22 +48,15 @@ const questionIcons: { [key: string]: any } = {
   employeeCount: Users2,
   department: Network,
   jobTitle: Briefcase,
+  jobFunction: Star,
+  primaryResponsibilities: FileText,
   directReports: Users2,
   reportingRoles: LineChart,
+  hasIndirectReports: GitBranch,
   decisionLevel: Target,
   typicalProject: ClipboardList,
   levelsToCEO: GitBranch,
   managesBudget: Wallet,
-};
-
-const isQuestionAnswered = (
-  questionId: string,
-  formData: FormData
-): boolean => {
-  const value = formData[questionId];
-  if (value === undefined || value === "") return false;
-  if (typeof value === "string" && value.trim() === "") return false;
-  return true;
 };
 
 export default function DemographicForm() {
@@ -183,15 +67,43 @@ export default function DemographicForm() {
   const [leadershipData, setLeadershipData] = useState<LeadershipData | null>(
     null
   );
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const loadedQuestions = await DemographicQuestions();
+        setQuestions(loadedQuestions);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error loading questions:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load questions. Please refresh the page.",
+          variant: "destructive",
+        });
+      }
+    };
+    loadQuestions();
+  }, [toast]);
+
+  const isQuestionAnswered = (questionId: string): boolean => {
+    const value = formData[questionId];
+    if (value === undefined || value === "") return false;
+    if (typeof value === "string" && value.trim() === "") return false;
+    return true;
+  };
 
   const handleInputChange = (id: string, value: string | number | boolean) => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleNext = () => {
-    const currentQuestion = questions[currentStep];
+    if (isLoading || !questions[currentStep]) return;
 
-    if (!isQuestionAnswered(currentQuestion.id, formData)) {
+    const currentQuestion = questions[currentStep];
+    if (!isQuestionAnswered(currentQuestion.id)) {
       toast({
         title: "Required Field",
         description: "Please answer this question before proceeding.",
@@ -211,18 +123,13 @@ export default function DemographicForm() {
     }
   };
 
-  const validateInput = (question: Question) => {
-    if (question.type === "boolean") {
-      return typeof formData[question.id] === "boolean";
-    }
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (isLoading) return;
+
     const unansweredQuestions = questions.filter(
-      (q) => !isQuestionAnswered(q.id, formData)
+      (q) => !isQuestionAnswered(q.id)
     );
 
     if (unansweredQuestions.length > 0) {
@@ -234,74 +141,30 @@ export default function DemographicForm() {
       return;
     }
 
-    if (!formData.decisionLevel) {
-      toast({
-        title: "Required Field",
-        description: "Please select a decision level",
-        variant: "destructive",
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/classification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
-      return;
-    }
 
-    if (
-      !formData.typicalProject ||
-      String(formData.typicalProject).length < 20
-    ) {
-      toast({
-        title: "Invalid Input",
-        description:
-          "Typical project description must be at least 20 characters",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const isValid = questions.every((question) => validateInput(question));
-
-    if (isValid) {
-      setIsSubmitting(true);
-      try {
-        const preparedData = {
-          name: String(formData.name || ""),
-          industry: String(formData.industry || ""),
-          companySize: Number(formData.employeeCount) || 0,
-          department: String(formData.department || ""),
-          jobTitle: String(formData.jobTitle || ""),
-          directReports: Number(formData.directReports) || 0,
-          reportingRoles: String(formData.reportingRoles || ""),
-          decisionLevel:
-            String(formData.decisionLevel || "").toLowerCase() === "operational"
-              ? "Operational"
-              : String(formData.decisionLevel || "").toLowerCase() ===
-                "tactical"
-              ? "Tactical"
-              : "Strategic",
-          typicalProject: String(formData.typicalProject || ""),
-          levelsToCEO: Number(formData.levelsToCEO) || 0,
-          managesBudget: Boolean(formData.managesBudget),
-        };
-
-        const response = await fetch("/api/classification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(preparedData),
-        });
-
-        if (response.ok) {
-          const responseData = await response.json();
-          console.log("Form submitted successfully");
-          console.log(responseData);
-          setLeadershipData(responseData);
-        } else {
-          console.error("Form submission failed");
-        }
-      } catch (error) {
-        console.error("Error submitting form:", error);
-      } finally {
-        setIsSubmitting(false);
+      if (response.ok) {
+        const responseData = await response.json();
+        setLeadershipData(responseData);
+      } else {
+        throw new Error("Failed to submit form");
       }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit form. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -354,17 +217,17 @@ export default function DemographicForm() {
               placeholder={question.placeholder}
               value={String(formData[question.id] || "")}
               onChange={(e) => handleInputChange(question.id, e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder-white/50"
+              className="bg-white/10 border-white/20 text-white placeholder-white/50 min-h-[120px]"
             />
             {question.helperText && (
               <p className="text-sm text-white/70">{question.helperText}</p>
             )}
-            {question.id === "typicalProject" &&
-              formData.typicalProject &&
-              String(formData.typicalProject).length < 20 && (
+            {(question.id === "typicalProject" ||
+              question.id === "primaryResponsibilities") &&
+              formData[question.id] &&
+              String(formData[question.id]).length < 20 && (
                 <p className="text-sm text-red-400">
-                  Please provide at least 20 characters for your project
-                  description
+                  Please provide at least 20 characters
                 </p>
               )}
           </div>
@@ -375,6 +238,8 @@ export default function DemographicForm() {
             {questionHeader}
             <Select
               onValueChange={(value) => handleInputChange(question.id, value)}
+              value={String(formData[question.id] || "")}
+              defaultValue=""
             >
               <SelectTrigger className="bg-white/10 border-white/20 text-white">
                 <SelectValue placeholder="Select an option" />
@@ -394,52 +259,18 @@ export default function DemographicForm() {
             ))}
           </div>
         );
-      case "boolean":
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id={question.id}
-                checked={!!formData[question.id]}
-                onCheckedChange={(checked) =>
-                  handleInputChange(question.id, checked)
-                }
-              />
-              <Label
-                htmlFor={question.id}
-                className="text-lg font-medium text-white"
-              >
-                {question.question}
-              </Label>
-            </div>
-            {formData[question.id] && question.additionalInfo && (
-              <div className="space-y-2">
-                <Label
-                  htmlFor={`${question.id}-additional`}
-                  className="text-lg font-medium text-white"
-                >
-                  {question.additionalInfo.question}
-                </Label>
-                <Input
-                  id={`${question.id}-additional`}
-                  placeholder={question.additionalInfo.placeholder}
-                  value={String(formData[`${question.id}-additional`] || "")}
-                  onChange={(e) =>
-                    handleInputChange(
-                      `${question.id}-additional`,
-                      e.target.value
-                    )
-                  }
-                  className="bg-white/10 border-white/20 text-white placeholder-white/50"
-                />
-              </div>
-            )}
-          </div>
-        );
       default:
         return null;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 font-['Inter'] flex items-center justify-center">
+        <div className="text-white">Loading questions...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 font-['Inter'] flex items-center justify-center py-10">
@@ -448,9 +279,6 @@ export default function DemographicForm() {
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
-            <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob" />
-            <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000" />
-            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-4000" />
           </div>
           <div className="relative">
             <JourneyText />
@@ -465,13 +293,10 @@ export default function DemographicForm() {
           </div>
         </div>
       ) : !leadershipData ? (
-        <div className="relative w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]">
+        <div className="relative w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
-            <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob" />
-            <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-2000" />
-            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-blob animation-delay-4000" />
           </div>
 
           <div className="relative z-10">
@@ -500,7 +325,8 @@ export default function DemographicForm() {
 
             <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-slate-700">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {renderQuestion(questions[currentStep])}
+                {questions[currentStep] &&
+                  renderQuestion(questions[currentStep])}
 
                 <div className="w-full bg-white/5 rounded-full h-1.5 mb-6">
                   <div
@@ -517,7 +343,7 @@ export default function DemographicForm() {
                     onClick={handlePrevious}
                     disabled={currentStep === 0}
                     variant="outline"
-                    className="text-black border-white/20 hover:bg-white/10 transition-all duration-300"
+                    className="text-white border-white/20 hover:bg-white/10 transition-all duration-300"
                   >
                     <ArrowLeft className="mr-2 h-5 w-5" />
                     Previous
