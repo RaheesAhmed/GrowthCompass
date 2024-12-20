@@ -260,7 +260,7 @@ export default function LevelTwoQuestions({
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -268,7 +268,7 @@ export default function LevelTwoQuestions({
   if (error) {
     return (
       <div className="text-center p-6">
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-600">{error}</p>
       </div>
     );
   }
@@ -278,200 +278,204 @@ export default function LevelTwoQuestions({
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8">
-      <Card className="bg-slate-900 border-slate-800">
-        <CardHeader className="space-y-1 pb-8">
-          <CardTitle className="text-2xl text-center text-white">
-            Leadership Assessment
-          </CardTitle>
-          <CardDescription className="text-center text-slate-400">
-            Assess your leadership capabilities and identify areas for growth
-          </CardDescription>
-        </CardHeader>
+    <div className="w-full max-w-5xl mx-auto px-4 py-12">
+      <div className="enterprise-card">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-semibold text-primary-950 mb-2">
+                Deep Dive Assessment
+              </h1>
+              <p className="text-lg text-surface-600">
+                Explore specific aspects of your leadership capabilities
+              </p>
+            </div>
+          </div>
 
-        <CardContent className="space-y-4">
-          <div className="mb-12">
-            <Progress
-              value={((currentQuestionIndex + 1) / questions.length) * 100}
-              className="h-3 bg-slate-800"
-            />
-            <div className="flex justify-between items-center mt-2">
-              <p className="text-sm text-slate-400">
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <p className="text-sm font-medium text-surface-600">
                 Progress:{" "}
                 {Math.round(
                   ((currentQuestionIndex + 1) / questions.length) * 100
                 )}
                 % complete
               </p>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm font-medium text-surface-600">
                 Question {currentQuestionIndex + 1} of {questions.length}
               </p>
             </div>
+            <Progress
+              value={((currentQuestionIndex + 1) / questions.length) * 100}
+              className="h-2 enterprise-progress"
+            />
           </div>
+        </div>
+      </div>
 
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentQuestion.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="space-y-10">
-                <div className="text-center mb-10">
-                  <div className="inline-block px-6 py-2 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20">
-                    <h2 className="text-2xl font-medium bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                      {currentQuestion.theme}
-                    </h2>
-                  </div>
-                  <div className="mt-4 h-1 w-24 mx-auto bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full opacity-50" />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentQuestion.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+          className="mt-8"
+        >
+          <div className="space-y-8">
+            {/* Theme Header */}
+            <div className="text-center">
+              <div className="inline-block">
+                <h2 className="text-2xl font-semibold text-primary-950">
+                  {currentQuestion.theme}
+                </h2>
+                <div className="mt-2 h-0.5 w-20 mx-auto bg-primary-200" />
+              </div>
+            </div>
+
+            {/* Main Question Card */}
+            <div className="enterprise-card">
+              <div className="p-8 space-y-8">
+                {/* Question */}
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-medium text-primary-950">
+                    {currentQuestion.question}
+                  </h3>
+                  {currentQuestion.context && (
+                    <div className="bg-surface-50 rounded-xl p-6 border border-surface-200">
+                      <p className="text-surface-600">
+                        {currentQuestion.context}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-10 border border-white/10 shadow-2xl">
+                {/* Rating */}
+                <div className="space-y-6">
+                  <p className="text-lg font-medium text-primary-950">
+                    Rate your overall proficiency in this area:
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const isSelected = currentResponse?.rating >= star;
+                      return (
+                        <Button
+                          key={star}
+                          type="button"
+                          onClick={() => handleRatingChange(star)}
+                          variant="outline"
+                          className={`w-14 h-14 rounded-xl transition-all duration-300 ${
+                            isSelected
+                              ? "bg-primary-600 text-white border-primary-600 hover:bg-primary-700"
+                              : "border-2 border-surface-200 hover:border-primary-200 bg-surface-50"
+                          }`}
+                        >
+                          <StarIcon
+                            className={`w-6 h-6 transition-all duration-300 ${
+                              isSelected
+                                ? "fill-white stroke-none"
+                                : "stroke-surface-400"
+                            }`}
+                          />
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-center items-center gap-4 text-sm font-medium">
+                    <span className="text-surface-600">Not Effective</span>
+                    <span className="text-surface-400">→</span>
+                    <span className="text-surface-600">Highly Effective</span>
+                  </div>
+                </div>
+
+                {/* Main Response */}
+                <div className="space-y-4">
+                  <label className="text-lg font-medium text-primary-950">
+                    Share your overall experiences and challenges:
+                  </label>
+                  <Textarea
+                    value={currentResponse.response}
+                    onChange={handleAnswerChange}
+                    placeholder="Describe your overall approach and experiences with this aspect of leadership..."
+                    className="min-h-[180px] enterprise-textarea"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Sub Questions */}
+            {currentQuestion.subQuestions.length > 0 && (
+              <div className="enterprise-card">
+                <div className="p-8 space-y-8">
+                  <h4 className="text-xl font-medium text-primary-950">
+                    Specific Areas to Address
+                  </h4>
                   <div className="space-y-8">
-                    <div>
-                      <h3 className="text-2xl font-semibold text-white/90 leading-relaxed">
-                        {currentQuestion.question}
-                      </h3>
-                      {currentQuestion.context && (
-                        <div className="mt-6 bg-white/[0.02] rounded-xl p-4 border border-white/5">
-                          <p className="text-base text-white/70 leading-relaxed">
-                            {currentQuestion.context}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-8">
-                      <p className="text-lg font-medium text-white mb-4">
-                        Rate your overall proficiency in this area:
-                      </p>
-                      <div className="flex items-center justify-center space-x-6">
-                        {[1, 2, 3, 4, 5].map((star) => {
-                          const isSelected = currentResponse?.rating >= star;
-                          return (
-                            <Button
-                              key={star}
-                              type="button"
-                              onClick={() => handleRatingChange(star)}
-                              variant="outline"
-                              className={`w-16 h-16 rounded-xl transition-all duration-300 transform hover:scale-105 ${
-                                isSelected
-                                  ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-none shadow-lg shadow-indigo-500/25"
-                                  : "border-2 border-indigo-300/20 hover:border-indigo-400/40 bg-white/[0.02]"
-                              }`}
-                            >
-                              <StarIcon
-                                className={`w-8 h-8 transition-all duration-300 ${
-                                  isSelected
-                                    ? "fill-white stroke-none"
-                                    : "stroke-indigo-300/60"
-                                }`}
-                              />
-                            </Button>
-                          );
-                        })}
-                      </div>
-                      <div className="flex justify-center items-center space-x-2 text-sm font-medium mt-4">
-                        <span className="text-rose-400/90">Not Effective</span>
-                        <span className="text-slate-500">→</span>
-                        <span className="text-emerald-400/90">
-                          Highly Effective
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="pt-6 border-t border-white/10">
-                      <label
-                        htmlFor="answer"
-                        className="block text-lg font-medium text-white mb-4"
+                    {currentQuestion.subQuestions.map((sq, index) => (
+                      <div
+                        key={sq.id}
+                        className="space-y-4 bg-surface-50 rounded-xl p-6 border border-surface-200"
                       >
-                        Share your overall experiences and challenges:
-                      </label>
-                      <Textarea
-                        id="answer"
-                        value={currentResponse.response}
-                        onChange={handleAnswerChange}
-                        placeholder="Describe your overall approach and experiences with this aspect of leadership..."
-                        className="w-full min-h-[120px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
-                          focus:border-indigo-500/50 focus:ring-indigo-500/50 placeholder:text-slate-500
-                          transition-all duration-300 text-white/90"
-                      />
-                    </div>
-
-                    {currentQuestion.subQuestions.length > 0 && (
-                      <div className="pt-8 space-y-8">
-                        <h4 className="text-xl font-medium text-white/90">
-                          Specific Areas to Address:
-                        </h4>
-                        {currentQuestion.subQuestions.map((sq, index) => (
-                          <div
-                            key={sq.id}
-                            className="space-y-4 bg-white/[0.01] rounded-xl p-6 border border-white/5"
-                          >
-                            <div>
-                              <h5 className="text-lg font-medium text-white/80 mb-2">
-                                {sq.question}
-                              </h5>
-                              <p className="text-sm text-white/60">
-                                {sq.context}
-                              </p>
-                            </div>
-                            <Textarea
-                              value={
-                                currentResponse.subResponses?.[index]
-                                  ?.response || ""
-                              }
-                              onChange={(e) =>
-                                handleSubAnswerChange(sq.id, e.target.value)
-                              }
-                              placeholder="Share your specific experiences and approach..."
-                              className="w-full min-h-[100px] p-4 text-base rounded-xl bg-white/[0.02] border-white/10 
-                                focus:border-indigo-500/50 focus:ring-indigo-500/50 placeholder:text-slate-500
-                                transition-all duration-300 text-white/90"
-                            />
-                          </div>
-                        ))}
+                        <div className="space-y-2">
+                          <h5 className="text-lg font-medium text-primary-950">
+                            {sq.question}
+                          </h5>
+                          <p className="text-surface-600">{sq.context}</p>
+                        </div>
+                        <Textarea
+                          value={
+                            currentResponse.subResponses?.[index]?.response ||
+                            ""
+                          }
+                          onChange={(e) =>
+                            handleSubAnswerChange(sq.id, e.target.value)
+                          }
+                          placeholder="Share your specific experiences and approach..."
+                          className="min-h-[150px] enterprise-textarea"
+                        />
                       </div>
-                    )}
+                    ))}
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </CardContent>
-
-        <CardFooter className="flex justify-between pt-8">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0}
-            className="flex items-center space-x-2"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Previous</span>
-          </Button>
-
-          <Button
-            onClick={handleNext}
-            disabled={isSubmitting}
-            className="flex items-center space-x-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
-          >
-            {isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <span>
-                  {currentQuestionIndex === questions.length - 1
-                    ? "Complete"
-                    : "Next"}
-                </span>
-                <ChevronRight className="w-4 h-4" />
-              </>
             )}
-          </Button>
-        </CardFooter>
-      </Card>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation */}
+      <div className="flex justify-between items-center mt-8">
+        <Button
+          onClick={handlePrevious}
+          disabled={currentQuestionIndex === 0}
+          className="enterprise-button-secondary"
+        >
+          <ChevronLeft className="w-5 h-5 mr-2" />
+          Previous
+        </Button>
+
+        <Button
+          onClick={handleNext}
+          disabled={isSubmitting}
+          className="enterprise-button-primary group"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              <span>Processing...</span>
+            </>
+          ) : (
+            <>
+              <span>
+                {currentQuestionIndex === questions.length - 1
+                  ? "Complete"
+                  : "Next"}
+              </span>
+              <ChevronRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

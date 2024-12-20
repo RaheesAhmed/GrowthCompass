@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String      @unique
+  hashedPassword String?
+  name           String?
+  emailVerified  DateTime?
+  image          String?
+  role           String      @default("USER")
+  department     String?
+  updatedAt      DateTime    @updatedAt
+  createdAt      DateTime    @default(now())
+  profile        Profile?
+  assessments    Assessment[]
+  developmentPlans DevelopmentPlan[]
+  subscription   Subscription?
+  multiRaterAssessments MultiRaterAssessment[]
+  consultantProfile ConsultantProfile?
+  companyId      String?
+  demographic    Demographic?
+
+  @@map("users")
+}
+
+model DevelopmentPlan {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  title         String?   @default("Development Plan")
+  description   String?
+  plan          Json      // Stores the detailed plan structure
+  status        String    @default("in_progress") // "in_progress", "completed", "on_hold"
+  startDate     DateTime?
+  endDate       DateTime?
+  progress      Int       @default(0)
+  priority      String    @default("medium")
+  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@map("development_plans")
+}
+
+model Assessment {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id])
+  responsibilityLevel Json?     // Make this optional
+  demographic         Json?     // Make this optional
+  ratings             Rating[]
+  plan                String?
+  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime  @default(now())
+
+  @@index([userId])
+  @@map("assessments")
+}
+
+model Rating {
+  id            String      @id @default(cuid())
+  assessmentId  String
+  assessment    Assessment  @relation(fields: [assessmentId], references: [id])
+  capability    String
+  rating        Int
+  confidence    Int
+  explanation   String?
+  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime    @default(now())
+
+  @@index([assessmentId])
+  @@map("ratings")
+}
+
+model Demographic {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  industry      String?
+  companySize   String?
+  department    String?
+  jobTitle      String?
+  directReports String?
+  decisionLevel String?
+  typicalProject String?
+  levelsToCEO   String?
+  managesBudget String?
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+
+  @@map("demographics")
+}
+
+model Profile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  profilePicture String?
+
+  @@map("profiles")
+}
+
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id])
+  planType  String
+  startDate DateTime  @default(now())
+  endDate   DateTime
+  status    String    @default("active")
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
+
+  @@map("subscriptions")
+}
+
+model ConsultantProfile {
+  id                     String    @id @default(cuid())
+  userId                 String    @unique
+  user                   User      @relation(fields: [userId], references: [id])
+  companyName            String?
+  website                String?
+  apiKey                 String?   @unique
+  apiKeyCreatedAt       DateTime?
+  whiteLabelEnabled     Boolean   @default(false)
+  revenueSharePercentage Float?
+  apiUsage              ApiUsage[]
+  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime  @default(now())
+
+  @@map("consultant_profiles")
+}
+
+model MultiRaterAssessment {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  status    String    @default("pending")
+  expiresAt DateTime?
+  ratings   MultiRaterRating[]
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
+
+  @@map("multi_rater_assessments")
+}
+
+model MultiRaterRating {
+  id           String    @id @default(cuid())
+  assessmentId String
+  assessment   MultiRaterAssessment @relation(fields: [assessmentId], references: [id])
+  raterEmail   String
+  relationship String
+  answers      Json
+  submittedAt  DateTime?
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+
+  @@map("multi_rater_ratings")
+}
+
+model ApiUsage {
+  id           String    @id @default(cuid())
+  consultantId String
+  consultant   ConsultantProfile @relation(fields: [consultantId], references: [id])
+  endpoint     String
+  method       String
+  statusCode   Int
+  timestamp    DateTime  @default(now())
+
+  @@map("api_usage")
+} 

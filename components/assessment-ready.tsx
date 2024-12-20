@@ -40,65 +40,61 @@ const AssessmentReady = ({
   if (!userData) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      {/* Grid Background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
-      </div>
-
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="relative max-w-2xl mx-auto px-4 py-12">
         {/* Success Badge */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20">
-            <CheckCircle2 className="h-4 w-4 text-emerald-400 mr-2" />
-            <span className="text-sm font-medium text-emerald-300">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-primary-50 border border-primary-100">
+            <CheckCircle2 className="h-4 w-4 text-primary-600 mr-2" />
+            <span className="text-sm font-medium text-primary-600">
               Profile Complete
             </span>
           </div>
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700">
+        <div className="enterprise-card">
           {/* User Info Section */}
-          <div className="p-8 border-b border-slate-700/50">
-            <h2 className="text-4xl font-bold tracking-tight text-center mb-6">
-              <span className="block text-white">Ready for Your</span>
-              <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
+          <div className="p-8 border-b border-surface-200">
+            <h2 className="text-4xl font-semibold tracking-tight text-center mb-6">
+              <span className="block text-primary-950">Ready for Your</span>
+              <span className="block enterprise-text">
                 Leadership Assessment
               </span>
             </h2>
 
             {/* User Details */}
-            <div className="bg-slate-900/30 rounded-xl p-6 border border-slate-700/50">
+            <div className="bg-surface-50 rounded-xl p-6 border border-surface-100">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3 text-slate-300">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <User className="h-5 w-5 text-indigo-400" />
+                <div className="flex items-center gap-3 text-surface-600">
+                  <div className="w-10 h-10 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
+                    <User className="h-5 w-5 text-primary-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Name</p>
-                    <p className="font-medium">
+                    <p className="text-sm text-surface-500">Name</p>
+                    <p className="font-medium text-primary-950">
                       {userData.data.name || "Not provided"}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-300">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <Briefcase className="h-5 w-5 text-indigo-400" />
+                <div className="flex items-center gap-3 text-surface-600">
+                  <div className="w-10 h-10 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
+                    <Briefcase className="h-5 w-5 text-primary-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Role</p>
-                    <p className="font-medium">{userData.data.role}</p>
+                    <p className="text-sm text-surface-500">Role</p>
+                    <p className="font-medium text-primary-950">
+                      {userData.data.role}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-slate-300">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-indigo-400" />
+                <div className="flex items-center gap-3 text-surface-600">
+                  <div className="w-10 h-10 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center">
+                    <Building2 className="h-5 w-5 text-primary-600" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-400">Organization</p>
-                    <p className="font-medium">
+                    <p className="text-sm text-surface-500">Organization</p>
+                    <p className="font-medium text-primary-950">
                       {userData.data.organization || "Not provided"}
                     </p>
                   </div>
@@ -112,9 +108,8 @@ const AssessmentReady = ({
             {/* Start Assessment Button */}
             <button
               onClick={onStartAssessment}
-              className="w-full group relative px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition-all overflow-hidden"
+              className="enterprise-button-primary w-full group"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative flex items-center justify-center">
                 <span className="text-lg font-medium">Start Assessment</span>
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -124,7 +119,7 @@ const AssessmentReady = ({
             {/* Know More Button */}
             <button
               onClick={onKnowMore}
-              className="w-full group px-8 py-4 bg-slate-900/50 text-slate-300 rounded-xl border border-slate-700/50 hover:bg-slate-900 hover:border-indigo-500/20 hover:text-white transition-all duration-300"
+              className="enterprise-button-secondary w-full group"
             >
               <div className="flex items-center justify-center">
                 <span className="text-lg font-medium">
@@ -136,10 +131,10 @@ const AssessmentReady = ({
           </div>
 
           {/* Info Footer */}
-          <div className="p-6 bg-slate-900/30 rounded-b-2xl border-t border-slate-700/50">
+          <div className="p-6 bg-surface-50 rounded-b-xl border-t border-surface-200">
             <div className="flex items-start gap-3">
-              <Star className="h-5 w-5 text-indigo-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-slate-400">
+              <Star className="h-5 w-5 text-primary-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-surface-600">
                 Your assessment has been tailored based on your role level. The
                 assessment will take approximately 15-20 minutes to complete.
                 You can pause and resume at any time.

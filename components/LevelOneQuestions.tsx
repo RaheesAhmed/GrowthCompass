@@ -21,6 +21,7 @@ import {
   Clock,
   Star,
   Loader2,
+  Info,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import LevelTwoQuestions from "@/components/levelTwoQuestions";
@@ -41,30 +42,41 @@ const LevelTwoPrompt = ({
   onResponse: (wantLevelTwo: boolean) => void;
 }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl p-8 max-w-lg w-full mx-4 shadow-xl">
-        <h3 className="text-2xl font-bold text-white mb-4">
-          Deep Dive Opportunity
-        </h3>
-        <p className="text-slate-300 mb-6">
-          Based on your responses, we've identified an opportunity for deeper
-          insight in this area. Would you like to answer a few additional
-          questions to help develop more specific recommendations?
-        </p>
-        <div className="flex justify-end space-x-4">
-          <Button
-            variant="outline"
-            onClick={() => onResponse(false)}
-            className="border-slate-600 text-slate-300 hover:bg-slate-800"
-          >
-            Skip for now
-          </Button>
-          <Button
-            onClick={() => onResponse(true)}
-            className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"
-          >
-            Yes, let's dive deeper
-          </Button>
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="enterprise-card max-w-lg w-full mx-4">
+        <div className="p-8 space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-xl bg-primary-50 border border-primary-100 flex items-center justify-center flex-shrink-0">
+              <Info className="h-6 w-6 text-primary-600" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold text-primary-950 mb-2">
+                Deep Dive Opportunity
+              </h3>
+              <p className="text-surface-600">
+                Based on your responses, we've identified an opportunity for
+                deeper insight in this area. Would you like to answer a few
+                additional questions to help develop more specific
+                recommendations?
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-4 pt-4 border-t border-surface-200">
+            <Button
+              variant="outline"
+              onClick={() => onResponse(false)}
+              className="enterprise-button-secondary"
+            >
+              Skip for now
+            </Button>
+            <Button
+              onClick={() => onResponse(true)}
+              className="enterprise-button-primary"
+            >
+              Yes, let's dive deeper
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -410,80 +422,85 @@ export default function LevelOneQuestions({
     const currentQuestionData = currentAreaData.questions[currentQuestion];
 
     return (
-      <div className="space-y-10">
-        <div className="text-center mb-10">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-semibold tracking-tight text-primary-950">
             {currentAreaData.area}
           </h2>
-          <div className="mt-2 h-1 w-24 mx-auto bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full" />
+          <div className="mt-2 h-0.5 w-20 mx-auto bg-primary-200" />
         </div>
 
         {/* Rating Question Section */}
-        <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-10 border border-white/10 shadow-2xl">
-          <div className="space-y-8">
+        <div className="enterprise-card">
+          <div className="p-8 space-y-8">
             {/* Main Rating Question */}
-            <div>
-              <h3 className="text-2xl font-semibold text-white/90 leading-relaxed">
-                Consider your role in leading your team{" "}
-                <span className="text-indigo-400">–</span> from distributing
-                tasks fairly, supporting team members' growth, to ensuring good
-                teamwork.{" "}
-                <span className="block mt-2 text-xl">
-                  Rate your effectiveness in these areas from{" "}
-                  <span className="text-rose-400/90">1 (Not Effective)</span> to{" "}
-                  <span className="text-emerald-400/90">
-                    5 (Highly Effective)
-                  </span>
-                </span>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-medium text-primary-950">
+                Rate Your Effectiveness
               </h3>
+              <p className="text-surface-600">
+                Consider your role in leading your team – from distributing
+                tasks fairly, supporting team members' growth, to ensuring good
+                teamwork.
+              </p>
+              <p className="text-surface-600">
+                Rate your effectiveness from{" "}
+                <span className="text-primary-600 font-medium">
+                  1 (Not Effective)
+                </span>{" "}
+                to{" "}
+                <span className="text-primary-600 font-medium">
+                  5 (Highly Effective)
+                </span>
+              </p>
             </div>
 
             {/* Rating Stars */}
             <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-6">
+              <div className="flex items-center justify-center gap-4">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <Button
                     key={rating}
                     type="button"
                     onClick={() => handleInputChange("rating", rating)}
                     variant="outline"
-                    className={`w-16 h-16 rounded-xl transition-all duration-500 transform hover:scale-105 ${
+                    className={`w-14 h-14 rounded-xl transition-all duration-300 ${
                       (Number(
                         responses[`${currentArea}-${currentQuestion}-rating`]
                       ) || 0) >= rating
-                        ? "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-none shadow-lg shadow-indigo-500/25"
-                        : "border-2 border-indigo-300/20 hover:border-indigo-400/40 bg-white/[0.02]"
+                        ? "bg-primary-600 text-white border-primary-600 hover:bg-primary-700"
+                        : "border-2 border-surface-200 hover:border-primary-200 bg-surface-50"
                     }`}
                   >
                     <Star
-                      className={`w-8 h-8 transition-all duration-500 ${
+                      className={`w-6 h-6 transition-all duration-300 ${
                         (Number(
                           responses[`${currentArea}-${currentQuestion}-rating`]
                         ) || 0) >= rating
                           ? "fill-white stroke-none"
-                          : "stroke-indigo-300/60"
+                          : "stroke-surface-400"
                       }`}
                     />
                   </Button>
                 ))}
               </div>
-              <div className="flex justify-center items-center space-x-2 text-sm font-medium">
-                <span className="text-rose-400/90">Not Effectively</span>
-                <span className="text-slate-500">→</span>
-                <span className="text-emerald-400/90">Very Effectively</span>
+              <div className="flex justify-center items-center gap-4 text-sm font-medium">
+                <span className="text-surface-600">Not Effectively</span>
+                <span className="text-surface-400">→</span>
+                <span className="text-surface-600">Very Effectively</span>
               </div>
             </div>
 
-            {/* Detailed Explanation */}
-            <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/5">
-              <p className="text-base text-white/70 leading-relaxed">
+            {/* Context Information */}
+            <div className="bg-surface-50 rounded-xl p-6 border border-surface-200">
+              <p className="text-surface-600">
                 {currentQuestionData.ratingQuestion.split("\n\n")[1]}
               </p>
             </div>
 
             {/* Response Section */}
-            <div className="pt-6 border-t border-white/10">
-              <Label className="text-lg font-medium text-white/80 mb-4 block">
+            <div className="space-y-4">
+              <Label className="text-lg font-medium text-primary-950">
                 Share your thoughts and experiences:
               </Label>
               <Textarea
@@ -494,35 +511,39 @@ export default function LevelOneQuestions({
                 }
                 onChange={(e) => handleInputChange("response", e.target.value)}
                 placeholder="Describe your experiences and provide specific examples..."
-                className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
-                  focus:border-indigo-500/50 focus:ring-indigo-500/50 placeholder:text-slate-500
-                  transition-all duration-300 text-white/90"
+                className="min-h-[180px] enterprise-textarea"
               />
             </div>
           </div>
         </div>
 
         {/* Reflection Section */}
-        <div className="bg-white/[0.03] backdrop-blur-xl rounded-3xl p-10 border border-white/10 shadow-2xl">
-          <div className="space-y-8">
+        <div className="enterprise-card">
+          <div className="p-8 space-y-8">
             {/* Main Reflection Question */}
-            <div>
-              <h3 className="text-2xl font-semibold text-white/90 leading-relaxed">
-                How confident do you feel in your ability to lead your team
-                effectively?{" "}
-                <span className="block mt-2 text-xl">
-                  Rate from{" "}
-                  <span className="text-rose-400/90">1 (Not Confident)</span> to{" "}
-                  <span className="text-emerald-400/90">
-                    5 (Very Confident)
-                  </span>
-                </span>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-medium text-primary-950">
+                Rate Your Confidence
               </h3>
+              <p className="text-surface-600">
+                How confident do you feel in your ability to lead your team
+                effectively?
+              </p>
+              <p className="text-surface-600">
+                Rate from{" "}
+                <span className="text-primary-600 font-medium">
+                  1 (Not Confident)
+                </span>{" "}
+                to{" "}
+                <span className="text-primary-600 font-medium">
+                  5 (Very Confident)
+                </span>
+              </p>
             </div>
 
             {/* Rating Stars */}
             <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-6">
+              <div className="flex items-center justify-center gap-4">
                 {[1, 2, 3, 4, 5].map((rating) => (
                   <Button
                     key={rating}
@@ -531,47 +552,47 @@ export default function LevelOneQuestions({
                       handleInputChange("reflectionRating", rating)
                     }
                     variant="outline"
-                    className={`w-16 h-16 rounded-xl transition-all duration-500 transform hover:scale-105 ${
+                    className={`w-14 h-14 rounded-xl transition-all duration-300 ${
                       (Number(
                         responses[
                           `${currentArea}-${currentQuestion}-reflectionRating`
                         ]
                       ) || 0) >= rating
-                        ? "bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 text-white border-none shadow-lg shadow-purple-500/25"
-                        : "border-2 border-purple-300/20 hover:border-purple-400/40 bg-white/[0.02]"
+                        ? "bg-primary-600 text-white border-primary-600 hover:bg-primary-700"
+                        : "border-2 border-surface-200 hover:border-primary-200 bg-surface-50"
                     }`}
                   >
                     <Star
-                      className={`w-8 h-8 transition-all duration-500 ${
+                      className={`w-6 h-6 transition-all duration-300 ${
                         (Number(
                           responses[
                             `${currentArea}-${currentQuestion}-reflectionRating`
                           ]
                         ) || 0) >= rating
                           ? "fill-white stroke-none"
-                          : "stroke-purple-300/60"
+                          : "stroke-surface-400"
                       }`}
                     />
                   </Button>
                 ))}
               </div>
-              <div className="flex justify-center items-center space-x-2 text-sm font-medium">
-                <span className="text-rose-400/90">Not Confident</span>
-                <span className="text-slate-500">→</span>
-                <span className="text-emerald-400/90">Very Confident</span>
+              <div className="flex justify-center items-center gap-4 text-sm font-medium">
+                <span className="text-surface-600">Not Confident</span>
+                <span className="text-surface-400">→</span>
+                <span className="text-surface-600">Very Confident</span>
               </div>
             </div>
 
-            {/* Detailed Explanation */}
-            <div className="bg-white/[0.02] rounded-2xl p-6 border border-white/5">
-              <p className="text-base text-white/70 leading-relaxed">
+            {/* Context Information */}
+            <div className="bg-surface-50 rounded-xl p-6 border border-surface-200">
+              <p className="text-surface-600">
                 {currentQuestionData.reflection.split("\n\n")[1]}
               </p>
             </div>
 
             {/* Response Section */}
-            <div className="pt-6 border-t border-white/10">
-              <Label className="text-lg font-medium text-white/80 mb-4 block">
+            <div className="space-y-4">
+              <Label className="text-lg font-medium text-primary-950">
                 Share your reflection:
               </Label>
               <Textarea
@@ -584,9 +605,7 @@ export default function LevelOneQuestions({
                   handleInputChange("reflection", e.target.value)
                 }
                 placeholder="Reflect on your experiences and areas for growth..."
-                className="w-full min-h-[180px] p-6 text-lg rounded-2xl bg-white/[0.02] border-white/10 
-                  focus:border-purple-500/50 focus:ring-purple-500/50 placeholder:text-slate-500
-                  transition-all duration-300 text-white/90"
+                className="min-h-[180px] enterprise-textarea"
               />
             </div>
           </div>
@@ -650,161 +669,123 @@ export default function LevelOneQuestions({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {showLevelTwoPrompt && (
-        <LevelTwoPrompt onResponse={handleLevelTwoPromptResponse} />
-      )}
+    <div className="min-h-screen bg-background">
+      {/* Enterprise Grid Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-surface-50/20 to-background" />
+      </div>
 
-      {isLevelTwoVisible && currentLevelTwoData ? (
-        <LevelTwoQuestions
-          level={level}
-          capability={currentLevelTwoData.capability}
-          skill={currentLevelTwoData.skill}
-          confidence={currentLevelTwoData.confidence}
-          onComplete={handleLevelTwoComplete}
-        />
-      ) : (
-        <Card className="w-full max-w-5xl mx-auto bg-slate-900/50 backdrop-blur-sm border border-slate-700">
-          <CardHeader className="p-8">
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="text-4xl font-bold text-white mb-2">
-                  Leadership Assessment
-                </CardTitle>
-                <CardDescription className="text-lg text-slate-300">
-                  {isLevelTwoVisible
-                    ? "Deep Dive Questions"
-                    : "Assess your leadership capabilities and identify areas for growth"}
-                </CardDescription>
-              </div>
-              <div className="flex items-center bg-slate-800/50 px-4 py-2 rounded-xl border border-slate-700">
-                <Clock className="w-6 h-6 text-slate-300 mr-2" />
-                <span className="text-xl font-medium text-white">
-                  {formatTime(timeRemaining)}
-                </span>
-              </div>
-            </div>
-          </CardHeader>
+      <div className="relative">
+        {showLevelTwoPrompt && (
+          <LevelTwoPrompt onResponse={handleLevelTwoPromptResponse} />
+        )}
 
-          <CardContent className="p-8">
-            <div className="mb-12">
-              <Progress
-                value={calculateProgress()}
-                className="h-3 bg-slate-800"
-              />
-              <div className="flex justify-between items-center mt-2">
-                <p className="text-sm text-slate-400">
-                  Progress: {Math.round(calculateProgress())}% complete
-                </p>
-                <p className="text-sm text-slate-400">
-                  Question {currentQuestion + 1} of{" "}
-                  {assessmentData && assessmentData[currentArea]
-                    ? assessmentData[currentArea].questions.length
-                    : 0}
-                </p>
+        {isLevelTwoVisible && currentLevelTwoData ? (
+          <LevelTwoQuestions
+            level={level}
+            capability={currentLevelTwoData.capability}
+            skill={currentLevelTwoData.skill}
+            confidence={currentLevelTwoData.confidence}
+            onComplete={handleLevelTwoComplete}
+          />
+        ) : (
+          <div className="max-w-5xl mx-auto px-4 py-12">
+            <div className="enterprise-card mb-8">
+              <div className="p-8">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h1 className="text-3xl font-semibold text-primary-950 mb-2">
+                      Leadership Assessment
+                    </h1>
+                    <p className="text-lg text-surface-600">
+                      Assess your leadership capabilities and identify areas for
+                      growth
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-surface-50 border border-surface-200">
+                    <Clock className="w-5 h-5 text-primary-600" />
+                    <span className="text-lg font-medium text-primary-950">
+                      {formatTime(timeRemaining)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm font-medium text-surface-600">
+                      Progress: {Math.round(calculateProgress())}% complete
+                    </p>
+                    <p className="text-sm font-medium text-surface-600">
+                      Question {currentQuestion + 1} of{" "}
+                      {assessmentData[currentArea].questions.length}
+                    </p>
+                  </div>
+                  <Progress
+                    value={calculateProgress()}
+                    className="h-2 enterprise-progress"
+                  />
+                </div>
               </div>
             </div>
 
             <AnimatePresence mode="wait">
               <motion.div
-                key={`${currentArea}-${currentQuestion}-${isLevelTwoVisible}`}
+                key={`${currentArea}-${currentQuestion}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                {isLevelTwoVisible
-                  ? renderLevelTwoQuestion()
-                  : renderLevelOneQuestion()}
+                {renderLevelOneQuestion()}
               </motion.div>
             </AnimatePresence>
 
-            <div className="flex justify-between mt-12">
+            <div className="flex justify-between items-center mt-8">
               <Button
                 onClick={handlePrevious}
-                disabled={
-                  currentArea === 0 &&
-                  currentQuestion === 0 &&
-                  !isLevelTwoVisible
-                }
-                variant="outline"
-                className="flex items-center text-lg px-6 py-3 bg-slate-800/50 border-slate-700 text-slate-200 hover:bg-slate-700/50 transition-all duration-300"
+                disabled={currentArea === 0 && currentQuestion === 0}
+                className="enterprise-button-secondary"
               >
                 <ChevronLeft className="w-5 h-5 mr-2" />
                 Previous
               </Button>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <Button
+                onClick={handleSave}
+                className="enterprise-button-secondary"
               >
-                <Button
-                  onClick={handleSave}
-                  variant="outline"
-                  className="relative group flex items-center text-lg px-8 py-3 bg-slate-800/50 border-slate-700 text-slate-200 overflow-hidden"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.75, ease: "easeInOut" }}
-                  />
-                  <Save className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
-                  <span className="relative">Save Progress</span>
-                </Button>
-              </motion.div>
+                <Save className="w-5 h-5 mr-2" />
+                Save Progress
+              </Button>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <Button
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="enterprise-button-primary group"
               >
-                <Button
-                  onClick={handleNext}
-                  disabled={isSubmitting}
-                  className="relative group flex items-center text-lg px-8 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white overflow-hidden"
-                >
-                  <motion.div
-                    className="absolute inset-0 bg-white/20"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.5 }}
-                  />
-                  {isSubmitting ? (
-                    <>
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                        className="mr-3"
-                      >
-                        <Loader2 className="h-5 w-5" />
-                      </motion.div>
-                      <span className="relative">Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="relative">
-                        {(isLevelTwoVisible &&
-                          currentQuestion === levelTwoQuestions.length - 1) ||
-                        (!isLevelTwoVisible &&
-                          currentArea === assessmentData.length - 1 &&
-                          currentQuestion ===
-                            assessmentData[currentArea].questions.length - 1)
-                          ? "Complete"
-                          : "Next"}
-                      </span>
-                      <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    </>
-                  )}
-                </Button>
-              </motion.div>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      {currentArea === assessmentData.length - 1 &&
+                      currentQuestion ===
+                        assessmentData[currentArea].questions.length - 1
+                        ? "Complete"
+                        : "Next"}
+                    </span>
+                    <ChevronRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                  </>
+                )}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

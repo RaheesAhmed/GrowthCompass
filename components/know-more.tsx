@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Briefcase,
   BarChart,
+  ArrowUpRight,
 } from "lucide-react";
 
 interface KnowMoreProps {
@@ -123,76 +124,81 @@ const InteractiveGuide = ({ onStartAssessment }: KnowMoreProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900">
-      {/* Grid Background */}
+    <div className="min-h-screen bg-background">
       <div className="relative">
+        {/* Enterprise Grid Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f46e510_1px,transparent_1px),linear-gradient(to_bottom,#4f46e510_1px,transparent_1px)] bg-[size:14px_14px]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-purple-900/20 to-slate-900" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-surface-50/20 to-background" />
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Progress Bar */}
           <div className="max-w-3xl mx-auto mb-8">
-            <div className="w-full bg-slate-800 rounded-full h-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-surface-600">
+                Step {currentStep + 1} of {steps.length}
+              </span>
+              <span className="text-sm font-medium text-surface-600">
+                {Math.round(((currentStep + 1) / steps.length) * 100)}% Complete
+              </span>
+            </div>
+            <div className="w-full bg-surface-100 rounded-full h-2">
               <div
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                className="h-2 rounded-full transition-all duration-500 enterprise-gradient"
                 style={{
                   width: `${((currentStep + 1) / steps.length) * 100}%`,
                 }}
               />
             </div>
-            <div className="text-slate-400 text-sm mt-2">
-              Step {currentStep + 1} of {steps.length}
-            </div>
           </div>
 
           {/* Content Card */}
           <div className="max-w-3xl mx-auto">
-            <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 min-h-[500px] flex flex-col">
+            <div className="enterprise-card min-h-[600px] flex flex-col">
               {/* Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-indigo-500/20 to-purple-500/20 flex items-center justify-center">
+              <div className="flex items-center gap-6 mb-8 p-8 border-b border-surface-200">
+                <div className="w-14 h-14 rounded-xl bg-primary-50 border border-primary-100 flex items-center justify-center">
                   {React.createElement(steps[currentStep].icon, {
-                    className: "h-6 w-6 text-indigo-400",
+                    className: "h-7 w-7 text-primary-600",
                   })}
                 </div>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-3xl font-semibold tracking-tight text-primary-950">
                   {steps[currentStep].title}
                 </h2>
               </div>
 
               {/* Content */}
-              <div className="flex-1">
+              <div className="flex-1 px-8">
                 {steps[currentStep].description && (
-                  <p className="text-slate-300 mb-6">
+                  <p className="text-lg text-surface-700 mb-8">
                     {steps[currentStep].description}
                   </p>
                 )}
 
                 {steps[currentStep].questions && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {steps[currentStep].questions.map((question, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-2 text-slate-300"
+                        className="flex items-start gap-3 p-4 rounded-lg bg-surface-50 border border-surface-200 transition-all hover:bg-surface-100"
                       >
-                        <CheckCircle className="h-5 w-5 text-indigo-400 mt-1 flex-shrink-0" />
-                        <span>{question}</span>
+                        <CheckCircle className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+                        <span className="text-surface-700">{question}</span>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {steps[currentStep].subPoints && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {steps[currentStep].subPoints.map((point, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 text-slate-300"
+                        className="flex items-center gap-3 p-4 rounded-lg bg-surface-50 border border-surface-200"
                       >
-                        <div className="w-2 h-2 rounded-full bg-indigo-400" />
-                        <span>{point}</span>
+                        <div className="w-2 h-2 rounded-full bg-primary-600" />
+                        <span className="text-surface-700">{point}</span>
                       </div>
                     ))}
                   </div>
@@ -204,10 +210,10 @@ const InteractiveGuide = ({ onStartAssessment }: KnowMoreProps) => {
                       (capability, index) => (
                         <div
                           key={index}
-                          className="flex items-center gap-2 bg-slate-700/30 p-3 rounded-lg text-slate-300"
+                          className="flex items-center gap-3 p-4 rounded-lg bg-surface-50 border border-surface-200 transition-all hover:bg-surface-100"
                         >
-                          <Star className="h-4 w-4 text-indigo-400 flex-shrink-0" />
-                          <span>{capability}</span>
+                          <Star className="h-5 w-5 text-primary-600 flex-shrink-0" />
+                          <span className="text-surface-700">{capability}</span>
                         </div>
                       )
                     )}
@@ -219,12 +225,13 @@ const InteractiveGuide = ({ onStartAssessment }: KnowMoreProps) => {
                     {steps[currentStep].validationPoints.map((point, index) => (
                       <div
                         key={index}
-                        className="bg-slate-700/30 p-4 rounded-lg"
+                        className="p-6 rounded-lg bg-surface-50 border border-surface-200 transition-all hover:bg-surface-100"
                       >
-                        <h3 className="text-indigo-400 font-semibold mb-2">
+                        <h3 className="text-primary-600 font-semibold mb-2 flex items-center gap-2">
+                          <Star className="h-4 w-4" />
                           {point.title}
                         </h3>
-                        <p className="text-slate-300 text-sm">
+                        <p className="text-surface-600 text-sm">
                           {point.description}
                         </p>
                       </div>
@@ -233,21 +240,23 @@ const InteractiveGuide = ({ onStartAssessment }: KnowMoreProps) => {
                 )}
 
                 {steps[currentStep].steps && (
-                  <div className="space-y-4">
-                    {steps[currentStep].steps.map((step, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 text-slate-300"
-                      >
-                        <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 flex-shrink-0">
-                          {index + 1}
+                  <div className="space-y-6">
+                    <div className="space-y-4">
+                      {steps[currentStep].steps.map((step, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-4 p-4 rounded-lg bg-surface-50 border border-surface-200"
+                        >
+                          <div className="w-8 h-8 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 font-medium">
+                            {index + 1}
+                          </div>
+                          <span className="text-surface-700">{step}</span>
                         </div>
-                        <span>{step}</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                     {steps[currentStep].tip && (
-                      <div className="mt-6 p-4 bg-indigo-500/10 rounded-lg border border-indigo-500/20">
-                        <p className="text-indigo-300 italic">
+                      <div className="p-4 rounded-lg bg-primary-50 border border-primary-100">
+                        <p className="text-primary-700 italic">
                           {steps[currentStep].tip}
                         </p>
                       </div>
@@ -257,35 +266,35 @@ const InteractiveGuide = ({ onStartAssessment }: KnowMoreProps) => {
               </div>
 
               {/* Navigation */}
-              <div className="flex justify-between mt-8 pt-6 border-t border-slate-700">
+              <div className="flex justify-between items-center mt-8 p-8 border-t border-surface-200">
                 <button
                   onClick={handlePrevious}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  className={`enterprise-button-secondary ${
                     currentStep === 0
-                      ? "text-slate-600 cursor-not-allowed"
-                      : "text-slate-300 hover:text-white"
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-surface-100"
                   }`}
                   disabled={currentStep === 0}
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <ArrowLeft className="h-5 w-5 mr-2" />
                   Previous
                 </button>
 
                 {currentStep === steps.length - 1 ? (
                   <button
                     onClick={onStartAssessment}
-                    className="inline-flex items-center px-6 py-2 text-base font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg hover:opacity-90 transition-all"
+                    className="enterprise-button-primary group"
                   >
                     Start Assessment
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <ArrowUpRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                   </button>
                 ) : (
                   <button
                     onClick={handleNext}
-                    className="flex items-center gap-2 px-4 py-2 text-slate-300 hover:text-white rounded-lg transition-all"
+                    className="enterprise-button-primary group"
                   >
                     Next
-                    <ArrowRight className="h-5 w-5" />
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
                 )}
               </div>

@@ -1,11 +1,21 @@
 "use client";
 
-import { Compass, ChevronDown, Menu } from "lucide-react";
+import { Compass, ChevronDown, Menu, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navigation() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { data: session } = useSession();
 
   const navItems = [
     {
@@ -22,27 +32,30 @@ export default function Navigation() {
     { label: "Resources", href: "#resources" },
   ];
 
+  const handleSignOut = async () => {
+    await signOut({ redirect: true, callbackUrl: "/" });
+  };
+
   return (
     <header>
-      <nav className="fixed w-full top-0 z-50 backdrop-blur-xl bg-slate-900/60 border-b border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="fixed w-full top-0 z-50 bg-background border-b border-surface-200">
+        <div className="container mx-auto">
           <div className="flex justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
               <Link href="/">
-                <div className="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
+                <div className="flex items-center hover:opacity-80 transition-opacity">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur-lg opacity-50" />
                     <Compass
-                      className="h-8 w-8 text-white relative"
+                      className="h-8 w-8 text-primary-600"
                       strokeWidth={1.5}
                     />
                   </div>
-                  <span className="ml-3 text-xl font-medium tracking-tight text-white">
-                    <span className="bg-gradient-to-r from-indigo-400 to-purple-400 text-transparent bg-clip-text font-bold">
+                  <span className="ml-3 text-xl font-medium tracking-tight">
+                    <span className="text-primary-600 font-semibold">
                       Growth
                     </span>
-                    <span className="text-slate-100">Compass</span>
+                    <span className="text-primary-950">Compass</span>
                   </span>
                 </div>
               </Link>
@@ -54,7 +67,7 @@ export default function Navigation() {
                 <div key={item.label} className="relative group px-3">
                   <a
                     href={item.href}
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-surface-600 hover:text-primary-950 transition-colors rounded-lg hover:bg-surface-50"
                   >
                     {item.label}
                     {item.dropdownItems && (
@@ -65,19 +78,16 @@ export default function Navigation() {
                   {/* Dropdown Menu */}
                   {item.dropdownItems && (
                     <div className="absolute left-0 mt-1 w-48 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-b from-slate-800 to-slate-900/95 rounded-lg blur-sm" />
-                        <div className="relative bg-slate-900 rounded-lg border border-slate-800/50 shadow-xl py-2">
-                          {item.dropdownItems.map((dropdownItem) => (
-                            <a
-                              key={dropdownItem.label}
-                              href={dropdownItem.href}
-                              className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5"
-                            >
-                              {dropdownItem.label}
-                            </a>
-                          ))}
-                        </div>
+                      <div className="rounded-lg bg-white shadow-lg ring-1 ring-surface-200 ring-opacity-5 py-2">
+                        {item.dropdownItems.map((dropdownItem) => (
+                          <a
+                            key={dropdownItem.label}
+                            href={dropdownItem.href}
+                            className="block px-4 py-2 text-sm text-surface-600 hover:text-primary-950 hover:bg-surface-50"
+                          >
+                            {dropdownItem.label}
+                          </a>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -86,25 +96,51 @@ export default function Navigation() {
 
               {/* Action Buttons */}
               <div className="flex items-center space-x-4 ml-4">
-                <button className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors">
-                  Sign In
-                </button>
-                <Link href="/start">
-                  <button className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg hover:opacity-90 transition-all shadow-lg hover:shadow-indigo-500/25">
-                    Get Started
-                  </button>
-                </Link>
+                {session?.user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="gap-2">
+                        <User className="h-4 w-4" />
+                        {session.user.name || session.user.email}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <Link href="/dashboard">
+                        <DropdownMenuItem>
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sign Out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <Button variant="outline">Sign In</Button>
+                    </Link>
+                    <Link href="/start">
+                      <Button>Get Started</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Mobile Menu Button */}
             <div className="flex items-center md:hidden">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5"
+                className="text-surface-600 hover:text-primary-950"
               >
                 <Menu className="h-6 w-6" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -113,25 +149,50 @@ export default function Navigation() {
         <div
           className={`md:hidden ${
             dropdownOpen ? "block" : "hidden"
-          } border-t border-slate-800/50 bg-slate-900/95 backdrop-blur-xl`}
+          } border-t border-surface-200 bg-background`}
         >
-          <div className="px-4 py-3 space-y-1">
+          <div className="container py-3 space-y-1">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="block px-3 py-2 text-base font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg"
+                className="block px-3 py-2 text-base font-medium text-surface-600 hover:text-primary-950 hover:bg-surface-50 rounded-lg"
               >
                 {item.label}
               </a>
             ))}
             <div className="pt-4 space-y-3">
-              <button className="w-full px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors rounded-lg border border-slate-700 hover:bg-white/5">
-                Sign In
-              </button>
-              <button className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg hover:opacity-90 transition-all">
-                Get Started
-              </button>
+              {session?.user ? (
+                <>
+                  <Link href="/dashboard" className="block w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={handleSignOut}
+                    className="w-full justify-start gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="block w-full">
+                    <Button variant="outline" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/start" className="block w-full">
+                    <Button className="w-full">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
