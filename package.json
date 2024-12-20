@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": " next build",
-    "start": "next start"
+    "start": "next start",
+    "prisma:generate": "prisma generate && prisma db push",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.7.3",
