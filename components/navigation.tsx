@@ -19,16 +19,10 @@ export default function Navigation() {
 
   const navItems = [
     {
-      label: "Features",
-      href: "#features",
-      dropdownItems: [
-        { label: "AI Analysis", href: "#ai-analysis" },
-        { label: "Team Development", href: "#team-development" },
-        { label: "Growth Tracking", href: "#growth-tracking" },
-      ],
+      label: "API Reference",
+      href: "/api-reference",
     },
-    { label: "About", href: "#about" },
-    { label: "Pricing", href: "#pricing" },
+
     { label: "Assessments", href: "/start" },
   ];
 

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Compass,
   Facebook,
@@ -15,7 +14,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-surface-50 pt-24 pb-12">
+    <footer className="bg-surface-50 pt-24 pb-12 ">
       {/* Newsletter Section */}
       <div className="container mx-auto mb-20">
         <div className="enterprise-card p-8 md:p-12">
@@ -85,14 +84,7 @@ const Footer = () => {
               Quick Links
             </h3>
             <ul className="space-y-4">
-              {[
-                "About Us",
-                "Features",
-                "Pricing",
-                "Case Studies",
-                "Testimonials",
-                "Request Demo",
-              ].map((link, index) => (
+              {["About Us", "Features"].map((link, index) => (
                 <li key={index}>
                   <a
                     href="#"
@@ -113,16 +105,15 @@ const Footer = () => {
             </h3>
             <ul className="space-y-4">
               {[
-                "Documentation",
                 "API Reference",
                 "Leadership Blog",
                 "Success Stories",
                 "Learning Center",
-                "Support",
+                "Contact",
               ].map((link, index) => (
                 <li key={index}>
                   <a
-                    href="#"
+                    href={link === "API Reference" ? "/api-refrence" : "#"}
                     className="group flex items-center text-surface-600 hover:text-primary-950 transition-colors"
                   >
                     <ArrowUpRight className="h-4 w-4 mr-2 opacity-0 group-hover:opacity-100 transition-all" />

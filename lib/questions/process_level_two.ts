@@ -1,15 +1,45 @@
 import { levelTwoQuestions } from "@/data/level_two_questions";
-import type { LevelTwoQuestion } from "@/types/level-two";
+
+interface LevelTwoData {
+  Lvl: number;
+  " Role Name": string;
+  " Description": string;
+  " Building a Team": string;
+  " Developing Others": string;
+  " Leading a Team to Get Results": string;
+  " Managing Performance": string;
+  " Managing the Business (Business Acumen)": string;
+  " Personal Development": string;
+  "Communicating as a Leader": string;
+  " Creating the Environment (Employee Relations)": string;
+  [key: string]: string | number; // Add index signature
+}
+
+export interface LevelTwoQuestion {
+  id: string;
+  capability: string;
+  level: number;
+  theme: string;
+  question: string;
+  context?: string;
+  subQuestions: Array<{
+    id: string;
+    question: string;
+    context: string;
+  }>;
+  type: string;
+  requiresReflection: boolean;
+}
 
 export async function readLevelTwoQuestions() {
-  const questions = levelTwoQuestions;
+  const questions = levelTwoQuestions as LevelTwoData[];
   return questions;
 }
 
 export async function getLevelTwoQuestions(
   capability: string,
   level: string | number
-) {
+): Promise<LevelTwoQuestion[]> {
   try {
     if (!levelTwoQuestions) {
       await readLevelTwoQuestions();
@@ -22,7 +52,9 @@ export async function getLevelTwoQuestions(
 
     const numericLevel =
       typeof level === "string" ? parseInt(level, 10) : level;
-    const levelData = levelTwoQuestions.find((q) => q.Lvl === numericLevel);
+    const levelData = (levelTwoQuestions as LevelTwoData[]).find(
+      (q) => q.Lvl === numericLevel
+    );
 
     if (!levelData) {
       console.error(`No data found for level ${level}`);
@@ -65,21 +97,7 @@ export async function getLevelTwoQuestions(
       return [];
     }
 
-    const questions: Array<{
-      id: string;
-      capability: string;
-      level: number;
-      theme: string;
-      question: string;
-      context?: string;
-      subQuestions: Array<{
-        id: string;
-        question: string;
-        context: string;
-      }>;
-      type: string;
-      requiresReflection: boolean;
-    }> = [];
+    const questions: LevelTwoQuestion[] = [];
 
     let currentTheme = "";
     let currentContext = "";

@@ -1,12 +1,26 @@
 import { getLevelTwoQuestions } from "@/lib/questions/process_level_two";
 import { NextRequest, NextResponse } from "next/server";
 
+export interface LevelTwoRequestBody {
+  capability: string;
+  level: number;
+  answers?: {
+    skill: number;
+    confidence: number;
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { capability, level } = (await request.json()) as {
-      capability: string;
-      level: number;
-    };
+    const body = (await request.json()) as LevelTwoRequestBody;
+    const { capability, level, answers } = body;
+
+    if (!capability || !level) {
+      return NextResponse.json(
+        { error: "Missing required parameters" },
+        { status: 400 }
+      );
+    }
 
     // Remove any leading/trailing spaces from capability
     const normalizedCapability = capability.trim();
@@ -17,6 +31,13 @@ export async function POST(request: NextRequest) {
       : ` ${normalizedCapability}`;
 
     const questions = await getLevelTwoQuestions(formattedCapability, level);
+
+    if (!questions || questions.length === 0) {
+      return NextResponse.json(
+        { error: "No questions found for the given parameters" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ levelTwoQuestions: questions });
   } catch (error) {
