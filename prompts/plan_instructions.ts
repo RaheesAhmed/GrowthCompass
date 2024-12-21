@@ -139,7 +139,7 @@ REQUIRED OUTPUT STRUCTURE:
 "development_plan": {
 "metadata": {
 "version": "1.0",
-"generated_date": "CURRENT_DATE",
+"generated_date": "add current date in format dd/mm/yyyy and time in format hh:mm:ss",
 "participant_id": "PARTICIPANT_NAME"
 },
 "sections": {
