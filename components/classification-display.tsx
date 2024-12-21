@@ -58,8 +58,21 @@ export default function LeadershipForm({
   const router = useRouter();
 
   const handleStartAssessment = () => {
-    localStorage.setItem("leadershipData", JSON.stringify(leadershipData));
-    router.push("/assessment-choice");
+    if (leadershipData?.success && leadershipData.data) {
+      localStorage.setItem(
+        "currentAssessmentData",
+        JSON.stringify({
+          level: leadershipData.data.level,
+          role: leadershipData.data.role,
+          responsibilityLevel: leadershipData.data.context.decisionLevel,
+          userInfo: {
+            name: leadershipData.data.name,
+            organization: leadershipData.data.organization,
+          },
+        })
+      );
+      router.push("/assessment-choice");
+    }
   };
 
   if (!leadershipData?.success || !leadershipData.data) {
@@ -96,7 +109,7 @@ export default function LeadershipForm({
 
               <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">
                 <span className="block text-primary-950">Your Leadership</span>
-                <span className="block mt-2 enterprise-text bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
+                <span className="block mt-2 enterprise-text">
                   Level {data.level} Profile
                 </span>
               </h1>
@@ -238,10 +251,10 @@ export default function LeadershipForm({
             <div className="mt-12 flex justify-center">
               <button
                 onClick={handleStartAssessment}
-                className="enterprise-button-primary group relative overflow-hidden px-8 py-4 rounded-xl"
+                className="enterprise-button-primary group relative overflow-hidden px-8 py-4 rounded-xl bg-primary-600 hover:bg-primary-700"
               >
-                <div className="absolute inset-0 w-3 bg-gradient-to-r from-primary-600 to-primary-400 transition-all duration-[400ms] ease-out group-hover:w-full" />
-                <span className="relative flex items-center text-lg font-semibold">
+                <div className="absolute inset-0 w-3 bg-primary-500 transition-all duration-[400ms] ease-out group-hover:w-full" />
+                <span className="relative flex items-center text-lg font-semibold text-white">
                   Continue to Development Plan
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" />
                 </span>

@@ -1,13 +1,47 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight, Star, ArrowUpRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-// Add props interface
-interface AssessmentChoiceProps {
-  onSkip: () => void;
-  onStart: () => void;
+interface AssessmentData {
+  level: number;
+  role: string;
+  responsibilityLevel: string;
+  userInfo: {
+    name: string;
+    organization: string;
+  };
 }
 
-const AssessmentChoice = ({ onSkip, onStart }: AssessmentChoiceProps) => {
+const AssessmentChoice = () => {
+  const router = useRouter();
+  const [assessmentData, setAssessmentData] = useState<AssessmentData | null>(
+    null
+  );
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("currentAssessmentData");
+    if (storedData) {
+      setAssessmentData(JSON.parse(storedData));
+    }
+  }, []);
+
+  const handleStart = () => {
+    if (assessmentData) {
+      // Store the current assessment state
+      localStorage.setItem("assessmentState", "started");
+      router.push("/assessment-ready");
+    }
+  };
+
+  const handleSkip = () => {
+    if (assessmentData) {
+      localStorage.setItem("assessmentState", "skipped");
+      router.push("/dashboard");
+    }
+  };
+
+  if (!assessmentData) return null;
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="relative max-w-2xl mx-auto px-4 py-12 text-center">
@@ -34,9 +68,8 @@ const AssessmentChoice = ({ onSkip, onStart }: AssessmentChoiceProps) => {
           </p>
 
           <div className="space-y-4">
-            {/* Start Assessment Button */}
             <button
-              onClick={onStart}
+              onClick={handleStart}
               className="enterprise-button-primary w-full group"
             >
               <div className="relative flex items-center justify-center">
@@ -45,19 +78,17 @@ const AssessmentChoice = ({ onSkip, onStart }: AssessmentChoiceProps) => {
               </div>
             </button>
 
-            {/* Skip Assessment Button */}
             <button
-              onClick={onSkip}
+              onClick={handleSkip}
               className="enterprise-button-secondary w-full group"
             >
-              <div className="relative flex items-center justify-center">
+              <div className="flex items-center justify-center">
                 <span className="text-lg font-medium">Skip Assessment</span>
                 <ArrowUpRight className="ml-2 h-5 w-5 transition-transform group-hover:scale-110" />
               </div>
             </button>
           </div>
 
-          {/* Additional Info */}
           <div className="mt-6 pt-6 border-t border-surface-200">
             <p className="text-sm text-surface-500">
               The assessment takes approximately 15-20 minutes to complete

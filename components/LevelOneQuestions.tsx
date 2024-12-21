@@ -84,12 +84,19 @@ const LevelTwoPrompt = ({
 };
 
 export default function LevelOneQuestions({
-  level,
-  userInfo,
-  responsibilityLevel,
   onComplete,
+  isSubmitting = false,
 }: LevelOneQuestionsProps) {
   const [assessmentData, setAssessmentData] = useState<AreaData[] | null>(null);
+  const [currentAssessmentData, setCurrentAssessmentData] = useState<{
+    level: number;
+    role: string;
+    responsibilityLevel: string;
+    userInfo: {
+      name: string;
+      organization: string;
+    };
+  } | null>(null);
   const [levelTwoQuestions, setLevelTwoQuestions] = useState<
     LevelTwoQuestion[]
   >([]);
@@ -108,9 +115,6 @@ export default function LevelOneQuestions({
     new Set()
   );
 
-  // Add new state at the top of the component
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Add state for Level Two questions
   const [currentLevelTwoData, setCurrentLevelTwoData] = useState<{
     capability: string;
@@ -119,25 +123,36 @@ export default function LevelOneQuestions({
   } | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/questions/level-one/${level}`);
-        const data = await response.json();
-        if (!data.levelOneQuestions) {
-          throw new Error("Invalid data format");
+    // Load the assessment data from localStorage
+    const storedData = localStorage.getItem("currentAssessmentData");
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setCurrentAssessmentData(parsedData);
+
+      // Fetch questions based on the level
+      const fetchQuestions = async () => {
+        try {
+          const response = await fetch(
+            `/api/questions/level-one/${parsedData.level}`
+          );
+          const data = await response.json();
+          if (!data.levelOneQuestions) {
+            throw new Error("Invalid data format");
+          }
+          setAssessmentData(data.levelOneQuestions);
+        } catch (error) {
+          console.error("Error fetching assessment data:", error);
+          toast({
+            title: "Error",
+            description:
+              "Failed to load assessment questions. Please try again.",
+            variant: "destructive",
+          });
         }
-        setAssessmentData(data.levelOneQuestions);
-      } catch (error) {
-        console.error("Error fetching assessment data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load assessment questions. Please try again.",
-          variant: "destructive",
-        });
-      }
-    };
-    fetchData();
-  }, [level]);
+      };
+      fetchQuestions();
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -227,7 +242,6 @@ export default function LevelOneQuestions({
 
   // Update the handleSubmitAssessment function
   const handleSubmitAssessment = async () => {
-    setIsSubmitting(true);
     try {
       const formattedResponses = formatResponsesForSubmission();
       await onComplete(formattedResponses);
@@ -238,8 +252,6 @@ export default function LevelOneQuestions({
         description: "Failed to submit assessment. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -683,7 +695,7 @@ export default function LevelOneQuestions({
 
         {isLevelTwoVisible && currentLevelTwoData ? (
           <LevelTwoQuestions
-            level={level}
+            level={currentAssessmentData?.level}
             capability={currentLevelTwoData.capability}
             skill={currentLevelTwoData.skill}
             confidence={currentLevelTwoData.confidence}
@@ -764,22 +776,27 @@ export default function LevelOneQuestions({
                 disabled={isSubmitting}
                 className="enterprise-button-primary group"
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    <span>Processing...</span>
-                  </>
+                {currentArea === assessmentData.length - 1 &&
+                currentQuestion ===
+                  assessmentData[currentArea].questions.length - 1 ? (
+                  <span className="relative flex items-center">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        <span>Generating Your Plan...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Complete Assessment</span>
+                        <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
+                  </span>
                 ) : (
-                  <>
-                    <span>
-                      {currentArea === assessmentData.length - 1 &&
-                      currentQuestion ===
-                        assessmentData[currentArea].questions.length - 1
-                        ? "Complete"
-                        : "Next"}
-                    </span>
-                    <ChevronRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                  </>
+                  <span className="relative flex items-center">
+                    <span>Next</span>
+                    <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  </span>
                 )}
               </Button>
             </div>

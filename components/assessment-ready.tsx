@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Star,
@@ -9,38 +10,29 @@ import {
   Building2,
 } from "lucide-react";
 
+interface AssessmentData {
+  level: number;
+  role: string;
+  responsibilityLevel: string;
+  userInfo: {
+    name: string;
+    organization: string;
+  };
+}
+
 interface AssessmentReadyProps {
+  data: AssessmentData;
   onStartAssessment: () => void;
   onKnowMore: () => void;
 }
 
-interface UserData {
-  data: {
-    role: string;
-    responsibilityLevel: number;
-    description: string;
-    name?: string;
-    organization?: string;
-  };
-}
-
 const AssessmentReady = ({
+  data,
   onStartAssessment,
   onKnowMore,
 }: AssessmentReadyProps) => {
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  useEffect(() => {
-    const storedData = localStorage.getItem("leadershipData");
-    if (storedData) {
-      setUserData(JSON.parse(storedData));
-    }
-  }, []);
-
-  if (!userData) return null;
-
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center mt-20">
       <div className="relative max-w-2xl mx-auto px-4 py-12">
         {/* Success Badge */}
         <div className="flex justify-center mb-6">
@@ -73,7 +65,7 @@ const AssessmentReady = ({
                   <div>
                     <p className="text-sm text-surface-500">Name</p>
                     <p className="font-medium text-primary-950">
-                      {userData.data.name || "Not provided"}
+                      {data.userInfo.name || "Not provided"}
                     </p>
                   </div>
                 </div>
@@ -83,9 +75,7 @@ const AssessmentReady = ({
                   </div>
                   <div>
                     <p className="text-sm text-surface-500">Role</p>
-                    <p className="font-medium text-primary-950">
-                      {userData.data.role}
-                    </p>
+                    <p className="font-medium text-primary-950">{data.role}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-surface-600">
@@ -95,7 +85,7 @@ const AssessmentReady = ({
                   <div>
                     <p className="text-sm text-surface-500">Organization</p>
                     <p className="font-medium text-primary-950">
-                      {userData.data.organization || "Not provided"}
+                      {data.userInfo.organization || "Not provided"}
                     </p>
                   </div>
                 </div>

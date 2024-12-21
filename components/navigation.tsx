@@ -29,7 +29,7 @@ export default function Navigation() {
     },
     { label: "About", href: "#about" },
     { label: "Pricing", href: "#pricing" },
-    { label: "Resources", href: "#resources" },
+    { label: "Assessments", href: "/start" },
   ];
 
   const handleSignOut = async () => {

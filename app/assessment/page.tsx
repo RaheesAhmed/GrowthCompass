@@ -4,21 +4,22 @@ import { useState, useEffect } from "react";
 import LevelOneQuestions from "@/components/LevelOneQuestions";
 import { useRouter } from "next/navigation";
 import type { LeadershipData } from "@/types/leadership";
-import type { AssessmentResponse } from "@/types/assessment";
+import type { AssessmentResponse } from "@/types/level-one";
 import Plan from "@/components/plan";
 import { CircularProgress } from "@/components/ui/circular-progress";
-import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 export default function AssessmentPage() {
   const [leadershipData, setLeadershipData] = useState<LeadershipData | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [planData, setPlanData] = useState<string>("");
-  const [showGenerateButton, setShowGenerateButton] = useState(false);
-  const [responses, setResponses] = useState<AssessmentResponse[]>([]);
+  const [storedResponses, setStoredResponses] = useState<AssessmentResponse[]>(
+    []
+  );
   const router = useRouter();
 
   useEffect(() => {
@@ -30,18 +31,18 @@ export default function AssessmentPage() {
     setLeadershipData(JSON.parse(data));
   }, [router]);
 
-  const handleAssessmentComplete = async (
-    allResponses: AssessmentResponse[]
-  ) => {
-    setResponses(allResponses);
-    setShowGenerateButton(true);
-  };
-
-  const generatePlan = async () => {
+  const generatePlan = async (responses: AssessmentResponse[]) => {
     try {
       setIsLoading(true);
+      setIsSubmitting(true);
       const userData = localStorage.getItem("userData");
       const parsedUserData = userData ? JSON.parse(userData) : null;
+
+      toast({
+        title: "Generating Plan",
+        description:
+          "Please wait while we create your personalized development plan...",
+      });
 
       const response = await fetch("/api/streaming", {
         method: "POST",
@@ -71,16 +72,32 @@ export default function AssessmentPage() {
         result += chunk;
         setPlanData(result);
       }
+
+      toast({
+        title: "Plan Generated",
+        description: "Your leadership development plan is ready!",
+      });
     } catch (error) {
       console.error("Error streaming assessment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate your plan. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
+      setIsSubmitting(false);
     }
+  };
+
+  const handleAssessmentComplete = (responses: AssessmentResponse[]) => {
+    setStoredResponses(responses);
+    generatePlan(responses);
   };
 
   const handleRegenerate = () => {
     setPlanData("");
-    generatePlan();
+    generatePlan(storedResponses);
   };
 
   if (!leadershipData) return null;
@@ -95,65 +112,13 @@ export default function AssessmentPage() {
 
       <div className="relative">
         {!planData ? (
-          <>
-            <LevelOneQuestions
-              level={leadershipData.data.responsibilityLevel}
-              userInfo={leadershipData.data}
-              responsibilityLevel={leadershipData.data.responsibilityLevel}
-              onComplete={handleAssessmentComplete}
-            />
-            <AnimatePresence>
-              {showGenerateButton && (
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 50 }}
-                  className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
-                >
-                  <div className="relative">
-                    {/* Main Button */}
-                    <Button
-                      onClick={generatePlan}
-                      disabled={isLoading}
-                      className="enterprise-button-primary relative group px-8 py-6 text-lg"
-                    >
-                      <span className="relative flex items-center gap-3">
-                        {isLoading ? (
-                          <>
-                            <Loader2 className="h-5 w-5 animate-spin" />
-                            <span>Generating Your Leadership Plan...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="h-5 w-5" />
-                            <span>Generate Your Leadership Plan</span>
-                            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                          </>
-                        )}
-                      </span>
-                    </Button>
-
-                    {/* Decorative Elements */}
-                    <div className="absolute -inset-px rounded-lg bg-gradient-to-r from-primary-200 via-primary-300 to-primary-200 opacity-50 blur group-hover:opacity-75 transition-opacity" />
-
-                    {/* Animated Ring */}
-                    <motion.div
-                      className="absolute -inset-4 rounded-xl bg-primary-100/20 -z-10"
-                      animate={{
-                        scale: [1, 1.05, 1],
-                        opacity: [0.3, 0.2, 0.3],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </>
+          <LevelOneQuestions
+            level={leadershipData.data.responsibilityLevel}
+            userInfo={leadershipData.data}
+            responsibilityLevel={leadershipData.data.responsibilityLevel}
+            onComplete={handleAssessmentComplete}
+            isSubmitting={isSubmitting}
+          />
         ) : (
           <Plan
             content={planData}

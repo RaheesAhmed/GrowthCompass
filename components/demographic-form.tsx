@@ -17,6 +17,9 @@ import {
   FileText,
   GitBranch,
   Wallet,
+  Save,
+  Upload,
+  AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +38,14 @@ import { LeadershipData } from "@/types/leadership";
 import { useToast } from "@/hooks/use-toast";
 import JourneyText from "@/components/JourneyText";
 import { DemographicQuestions } from "@/utils/demographic_questions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface FormData {
   [key: string]: string | number | boolean | undefined;
@@ -70,6 +81,7 @@ export default function DemographicForm() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [showSavedDataDialog, setShowSavedDataDialog] = useState(false);
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -98,6 +110,13 @@ export default function DemographicForm() {
       setProgress(newProgress);
     }
   }, [formData, questions]);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("savedDemographicData");
+    if (savedData) {
+      setShowSavedDataDialog(true);
+    }
+  }, []);
 
   const isQuestionAnswered = (questionId: string): boolean => {
     const value = formData[questionId];
@@ -158,7 +177,6 @@ export default function DemographicForm() {
     // Check if all required questions are answered
     const unansweredQuestions = questions.filter((q) => {
       if (q.type === "multipart" && q.parts) {
-        // For multipart questions, check each visible part
         return q.parts.some((part) => {
           const shouldShow = part.dependsOn
             ? formData[part.dependsOn] === part.showWhen
@@ -188,7 +206,6 @@ export default function DemographicForm() {
         },
         body: JSON.stringify({
           ...formData,
-          // Ensure multipart questions are properly formatted
           managesBudget: formData.managesBudget
             ? {
                 hasBudget: formData.hasBudget,
@@ -206,6 +223,8 @@ export default function DemographicForm() {
       const responseData = await response.json();
 
       if (responseData.success) {
+        // Store the complete leadership data in localStorage
+        localStorage.setItem("leadershipData", JSON.stringify(responseData));
         setLeadershipData(responseData);
       } else {
         throw new Error(responseData.message || "Failed to process assessment");
@@ -223,6 +242,47 @@ export default function DemographicForm() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSaveDemographicData = () => {
+    try {
+      localStorage.setItem("savedDemographicData", JSON.stringify(formData));
+      toast({
+        title: "Data Saved",
+        description:
+          "Your demographic information has been saved successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save your data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLoadSavedData = () => {
+    try {
+      const savedData = localStorage.getItem("savedDemographicData");
+      if (savedData) {
+        setFormData(JSON.parse(savedData));
+        setShowSavedDataDialog(false);
+        toast({
+          title: "Data Loaded",
+          description: "Your saved demographic information has been loaded.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load saved data. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStartFresh = () => {
+    setShowSavedDataDialog(false);
   };
 
   const renderQuestion = (question: Question) => {
@@ -522,6 +582,54 @@ export default function DemographicForm() {
     }
   };
 
+  const SavedDataDialog = () => (
+    <Dialog open={showSavedDataDialog} onOpenChange={setShowSavedDataDialog}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Saved Profile Found</DialogTitle>
+          <DialogDescription>
+            We found your previously saved demographic information. Would you
+            like to use it or start fresh?
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 pt-4">
+          <button
+            onClick={handleLoadSavedData}
+            className="enterprise-button-primary w-full group"
+          >
+            <div className="flex items-center justify-center">
+              <Upload className="w-5 h-5 mr-2" />
+              <span>Use Saved Profile</span>
+            </div>
+          </button>
+          <button
+            onClick={handleStartFresh}
+            className="enterprise-button-secondary w-full group"
+          >
+            <div className="flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 mr-2" />
+              <span>Start Fresh</span>
+            </div>
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
+  const SaveButton = () => (
+    <div className="fixed bottom-4 right-4 z-50">
+      <button
+        onClick={handleSaveDemographicData}
+        className="enterprise-button-primary group px-4 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+      >
+        <div className="flex items-center space-x-2">
+          <Save className="w-5 h-5" />
+          <span>Save Progress</span>
+        </div>
+      </button>
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background font-sans flex items-center justify-center">
@@ -556,6 +664,9 @@ export default function DemographicForm() {
 
   return (
     <div className="min-h-screen bg-background font-sans flex items-center justify-center py-10">
+      <SavedDataDialog />
+      <SaveButton />
+
       {currentStep === -1 ? (
         <div className="w-full relative px-4">
           <div className="relative max-w-4xl mx-auto">
