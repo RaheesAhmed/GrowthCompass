@@ -19,8 +19,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background font-sans">
       {/* Hero Section */}
-      <section className="relative py-20 mt-15">
-        <div className="container mx-auto">
+      <section className="relative py-20 mt-10">
+        <div className="container mx-auto mt-20">
           <div className="max-w-3xl mx-auto text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -33,8 +33,8 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-4xl md:text-5xl font-semibold text-primary-950 mb-6">
-                Accelerate Your{" "}
-                <span className="enterprise-text">Professional Growth</span>
+                Get Personalized{" "}
+                <span className="enterprise-text">Development Plan</span>
               </h1>
 
               <p className="text-lg text-surface-600 mb-8">
