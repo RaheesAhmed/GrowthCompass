@@ -28,18 +28,19 @@ export default function HomePage() {
             >
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-50 border border-primary-100 mb-6">
                 <span className="text-sm font-medium text-primary-600">
-                  AI-Powered Growth Platform
+                  Enterprise-Grade Leadership Platform
                 </span>
               </div>
 
               <h1 className="text-4xl md:text-5xl font-semibold text-primary-950 mb-6">
-                Get Personalized{" "}
-                <span className="enterprise-text">Development Plan</span>
+                Elevate Your Leadership with{" "}
+                <span className="enterprise-text">AI-Powered Insights</span>
               </h1>
 
               <p className="text-lg text-surface-600 mb-8">
-                Transform your career trajectory with personalized AI insights,
-                data-driven strategies, and actionable development plans.
+                Experience dynamic leadership assessment powered by advanced AI.
+                Get real-time feedback, personalized development paths, and
+                actionable strategies for professional growth.
               </p>
 
               <div className="flex flex-wrap justify-center gap-4 mb-12">
@@ -84,21 +85,21 @@ export default function HomePage() {
             {[
               {
                 icon: Target,
-                title: "AI-Powered Assessment",
+                title: "Multi-Level Assessment",
                 description:
-                  "Get personalized insights and recommendations based on your unique leadership style",
+                  "Progressive evaluation system with Level 1 and Level 2 assessments tailored to your leadership journey",
               },
               {
                 icon: BarChart,
-                title: "Progress Analytics",
+                title: "Real-Time AI Analysis",
                 description:
-                  "Track your growth with detailed metrics and performance insights",
+                  "Advanced classification and streaming responses for immediate, personalized feedback on your leadership style",
               },
               {
                 icon: Users,
-                title: "Team Development",
+                title: "Comprehensive Development",
                 description:
-                  "Build and nurture high-performing teams with actionable strategies",
+                  "AI-assisted coaching with dedicated conversation threads and resource management for continuous growth",
               },
             ].map((feature, index) => (
               <motion.div
@@ -183,19 +184,19 @@ export default function HomePage() {
           <div className="max-w-3xl mx-auto">
             {[
               {
-                question: "How does the assessment process work?",
+                question: "How sophisticated is the AI assessment?",
                 answer:
-                  "Our AI-powered assessment evaluates your professional competencies across key areas. The process takes about 20-30 minutes and includes adaptive questions based on your responses.",
+                  "Our platform uses advanced AI classification and real-time streaming analysis to provide dynamic, multi-level assessments. The system adapts to your responses and leadership style, offering increasingly sophisticated insights as you progress.",
               },
               {
-                question: "What's included in the development plan?",
+                question: "What makes the development plan unique?",
                 answer:
-                  "Your personalized development plan includes targeted skill recommendations, actionable steps for growth, curated learning resources, and progress tracking tools.",
+                  "We combine AI-powered analysis with dedicated conversation threads and personalized resource management. Each plan is dynamically adjusted based on your assessment results and progress, ensuring continuous alignment with your growth trajectory.",
               },
               {
-                question: "How do you track progress?",
+                question: "How do you ensure enterprise-grade security?",
                 answer:
-                  "We use a combination of AI analytics, self-assessments, and milestone tracking to measure your growth. You'll have access to detailed dashboards showing your progress.",
+                  "Our platform implements robust authentication, secure file management, and enterprise-ready API infrastructure. All data is processed with industry-standard security protocols and stored securely.",
               },
             ].map((faq, index) => (
               <motion.div
@@ -229,15 +230,16 @@ export default function HomePage() {
               <div className="flex flex-col md:flex-row items-center justify-between gap-8">
                 <div className="text-white text-center md:text-left">
                   <h2 className="text-2xl md:text-3xl font-semibold mb-2">
-                    Ready to accelerate your growth?
+                    Transform Your Leadership Journey Today
                   </h2>
                   <p className="text-primary-100">
-                    Join thousands of professionals advancing their careers
+                    Join forward-thinking leaders using AI-powered insights to
+                    accelerate their growth
                   </p>
                 </div>
                 <div className="flex gap-4">
                   <button className="enterprise-button-secondary">
-                    Start Free Trial
+                    Get Started
                   </button>
                 </div>
               </div>
