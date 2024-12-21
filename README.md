@@ -41,26 +41,40 @@ GrowthCompass is an AI-powered leadership development platform that helps indivi
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## 📁 Project Structure
-
-```
-app/
-├── (auth)/         # Authentication related pages
-├── api/            # API routes
-├── assessment/     # Assessment components
-├── chat/          # Chat functionality
-├── components/    # Reusable UI components
-├── fonts/         # Custom fonts
-├── types/         # TypeScript type definitions
-└── globals.css    # Global styles
-```
-
 ## 🔑 Key Components
 
 - **Home Page**: Modern landing page with animated gradients
 - **Assessment**: Interactive leadership assessment system
-- **Chat Interface**: AI-powered conversation system
 - **Progress Tracking**: Visual representation of development progress
+
+## 🤝 API Documentation
+
+### Authentication Endpoints
+
+- `/api/auth/signup` - User registration
+- `/api/auth/[...nextauth]` - NextAuth.js authentication routes
+
+### Assessment Endpoints
+
+- `/api/questions/level-one/*` - Level 1 assessment questions
+- `/api/questions/level-two/*` - Level 2 assessment questions
+- `/api/questions/[level]/*` - Dynamic level-based questions
+
+### AI and Classification
+
+- `/api/classification` - AI-powered response classification
+- `/api/streaming` - Streaming responses for real-time interactions
+
+### File Management
+
+- `/api/files` - File operations endpoints
+- `/api/files/[fileId]` - Specific file management
+
+### AI Assistant Integration
+
+- `/api/assistants` - AI assistant management
+- `/api/assistants/threads` - Conversation threads
+- `/api/assistants/files` - Assistant-related file operations
 
 ## 🤝 Contributing
 

@@ -4,7 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import AuthProvider from "@/components/providers/session-provider";
 import Navigation from "@/components/navigation";
-
+import Footer from "@/components/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -23,6 +23,7 @@ export default function RootLayout({
         <AuthProvider>
           <Navigation />
           {children}
+          <Footer />
           <Toaster />
         </AuthProvider>
       </body>
