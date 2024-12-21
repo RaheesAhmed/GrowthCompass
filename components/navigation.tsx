@@ -124,7 +124,9 @@ export default function Navigation() {
                       <Button variant="outline">Sign In</Button>
                     </Link>
                     <Link href="/start">
-                      <Button>Get Started</Button>
+                      <Button className="enterprise-button-primary">
+                        Get Started
+                      </Button>
                     </Link>
                   </>
                 )}
@@ -189,7 +191,9 @@ export default function Navigation() {
                     </Button>
                   </Link>
                   <Link href="/start" className="block w-full">
-                    <Button className="w-full">Get Started</Button>
+                    <Button className="enterprise-button-primary">
+                      Get Started
+                    </Button>
                   </Link>
                 </>
               )}
